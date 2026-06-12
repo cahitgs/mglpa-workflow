@@ -1,0 +1,9 @@
+{
+  "name": "mglpa-project",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "puppeteer": "^24.40.0"
+  }
+}

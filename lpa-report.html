@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MG-LPA Full APA Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #EDE8DC;
+    --surface: #F7F4EE;
+    --surface-raised: #FFFFFF;
+    --header-bg: #1A1919;
+    --header-text: #F7F4EE;
+    --accent: #F08C00;
+    --accent-dark: #D97A00;
+    --accent-text: #1A1919;
+    --success: #1A9E6E;
+    --success-bg: rgba(26,158,110,0.1);
+    --danger: #D94F3D;
+    --danger-bg: rgba(217,79,61,0.08);
+    --warning: #E5A100;
+    --warning-bg: rgba(229,161,0,0.1);
+    --text-1: #1A1919;
+    --text-2: #5A5750;
+    --text-3: #9A9590;
+    --border: #DDD8CE;
+    --border-dark: #C5BFB4;
+}
+
+body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 20px;
+    color: var(--text-1);
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 3px; }
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    overflow: hidden;
+}
+
+/* HEADER */
+.header {
+    background: var(--header-bg);
+    color: var(--header-text);
+    padding: 18px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.header-left p {
+    font-size: 12px;
+    color: rgba(247,244,238,0.5);
+    margin-top: 2px;
+}
+
+.header-right { display: flex; gap: 8px; }
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: rgba(26,158,110,0.15);
+    border: 1px solid rgba(26,158,110,0.3);
+    color: var(--success);
+}
+
+.badge-accent {
+    background: rgba(240,140,0,0.15);
+    border: 1px solid rgba(240,140,0,0.3);
+    color: var(--accent);
+}
+
+/* STEP NAV */
+.step-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-raised);
+    overflow-x: auto;
+}
+
+.step-tab {
+    flex: 1;
+    padding: 14px 16px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-3);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    position: relative;
+}
+
+.step-tab:hover { color: var(--text-2); background: var(--surface); }
+
+.step-tab.active {
+    color: var(--accent-dark);
+    border-bottom-color: var(--accent);
+    background: rgba(240,140,0,0.04);
+}
+
+.step-tab .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--border);
+    color: var(--text-2);
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.step-tab.active .step-num {
+    background: var(--accent);
+    color: var(--accent-text);
+}
+
+.step-tab.has-data::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.step-tab.no-data { opacity: 0.45; }
+
+/* CONTENT */
+.content { padding: 24px 28px; }
+
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+
+/* SECTION */
+.section {
+    margin-bottom: 24px;
+}
+
+.section-head {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-1);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+}
+
+/* APA TABLE */
+.apa-table-wrap {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.apa-table-title {
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-1);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    font-style: italic;
+}
+
+.apa-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.apa-table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-2);
+    border-bottom: 2px solid var(--text-1);
+    background: var(--surface-raised);
+}
+
+.apa-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-1);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+}
+
+.apa-table tbody tr:last-child td {
+    border-bottom: 2px solid var(--text-1);
+}
+
+.apa-table .row-label {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    color: var(--text-1);
+    font-size: 12px;
+}
+
+.apa-table .group-header td {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--accent-dark);
+    background: rgba(240,140,0,0.04);
+    border-bottom: 1px solid var(--border);
+    padding-top: 14px;
+}
+
+.apa-note {
+    padding: 10px 16px;
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.5;
+    font-style: italic;
+    border-top: 1px solid var(--border);
+}
+
+/* STATUS PILLS */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.pill-green { background: var(--success-bg); color: var(--success); }
+.pill-red { background: var(--danger-bg); color: var(--danger); }
+.pill-yellow { background: var(--warning-bg); color: var(--warning); }
+.pill-accent { background: rgba(240,140,0,0.1); color: var(--accent-dark); }
+
+/* EMPTY STATE */
+.empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-3);
+}
+
+.empty-state svg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+    opacity: 0.3;
+}
+
+.empty-state p { font-size: 13px; }
+
+/* PROMPT AREA */
+.prompt-card {
+    background: var(--header-bg);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 24px;
+}
+
+.prompt-header {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.prompt-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(247,244,238,0.4);
+}
+
+.prompt-body {
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(247,244,238,0.6);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.prompt-body::-webkit-scrollbar { width: 4px; }
+.prompt-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* BUTTONS */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+    background: var(--accent);
+    color: var(--accent-text);
+}
+
+.btn-primary:hover {
+    background: #FFAA22;
+    box-shadow: 0 4px 16px rgba(240,140,0,0.35);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: var(--surface-raised);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    border-color: var(--border-dark);
+    color: var(--text-1);
+}
+
+.btn-success {
+    background: var(--success);
+    color: #fff;
+}
+
+.btn-success:hover {
+    background: #15825a;
+}
+
+/* FOOTER */
+.footer {
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface);
+}
+
+/* SUMMARY CARDS */
+.summary-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.summary-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.summary-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-3);
+    margin-bottom: 6px;
+}
+
+.summary-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.summary-value span {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-3);
+}
+
+.summary-sub {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 4px;
+}
+
+/* DECISION FLOW */
+.decision-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    padding: 4px 0;
+}
+
+.flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 130px;
+    padding: 12px 8px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.flow-step.supported { border-color: var(--success); background: rgba(26,158,110,0.04); }
+.flow-step.rejected { border-color: var(--danger); background: rgba(217,79,61,0.04); }
+.flow-step.mixed { border-color: var(--warning); background: rgba(229,161,0,0.04); }
+
+.flow-step-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-1);
+}
+
+.flow-arrow {
+    font-size: 18px;
+    color: var(--border-dark);
+    padding: 0 4px;
+    flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="header-left">
+            <h1>Multi-Group LPA Full Report</h1>
+            <p>APA 7 Formatted Results</p>
+        </div>
+        <div class="header-right">
+            <span class="badge badge-success" id="statusBadge">Yukleniyor...</span>
+        </div>
+    </div>
+
+    <!-- STEP TABS -->
+    <div class="step-nav" id="stepNav">
+        <button class="step-tab active" onclick="showStep(0)"><span class="step-num">0</span>Enumeration</button>
+        <button class="step-tab" onclick="showStep(1)"><span class="step-num">1</span>Similarity</button>
+        <button class="step-tab" onclick="showStep(2)"><span class="step-num">2</span>Predictive</button>
+        <button class="step-tab" onclick="showStep(3)"><span class="step-num">3</span>Explanatory</button>
+        <button class="step-tab" onclick="showStep(4)"><span class="step-num">A</span>Full Report</button>
+    </div>
+
+    <div class="content">
+        <!-- STEP 0: ENUMERATION -->
+        <div class="step-panel active" id="panel0"></div>
+
+        <!-- STEP 1: SIMILARITY -->
+        <div class="step-panel" id="panel1"></div>
+
+        <!-- STEP 2: PREDICTIVE -->
+        <div class="step-panel" id="panel2"></div>
+
+        <!-- STEP 3: EXPLANATORY -->
+        <div class="step-panel" id="panel3"></div>
+
+        <!-- STEP 4: FULL PROMPT -->
+        <div class="step-panel" id="panel4"></div>
+    </div>
+
+    <div class="footer">
+        <span style="font-size:12px;color:var(--text-3);">Verileri ana uygulamadan otomatik yukler</span>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary" onclick="window.close()">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
+                Geri Don
+            </button>
+            <button class="btn btn-success" onclick="downloadWord()">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+                Word Olarak Indir
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let data = null;
+let activeStep = 0;
+
+function init() {
+  const raw = localStorage.getItem('lpa_full_report');
+  if (!raw) {
+    document.getElementById('statusBadge').textContent = 'Veri bulunamadi';
+    document.getElementById('statusBadge').className = 'badge badge-accent';
+    return;
+  }
+
+  try {
+    data = JSON.parse(raw);
+  } catch(e) {
+    document.getElementById('statusBadge').textContent = 'Veri hatasi';
+    return;
+  }
+
+  const counts = {
+    enum: data.enumeration?.length || 0,
+    sim: data.similarity?.length || 0,
+    pred: data.predictive?.length || 0,
+    expl: data.explanatory?.length || 0,
+  };
+  const total = counts.enum + counts.sim + counts.pred + counts.expl;
+
+  document.getElementById('statusBadge').textContent = `✓ ${total} model yuklendi`;
+
+  // Mark tabs with data
+  const tabs = document.querySelectorAll('.step-tab');
+  [counts.enum, counts.sim, counts.pred, counts.expl].forEach((c, i) => {
+    tabs[i].classList.toggle('has-data', c > 0);
+    tabs[i].classList.toggle('no-data', c === 0);
+  });
+  tabs[4].classList.add('has-data');
+
+  renderEnumeration();
+  renderSimilarity();
+  renderPredictive();
+  renderExplanatory();
+  renderFullReport();
+}
+
+function showStep(idx) {
+  activeStep = idx;
+  document.querySelectorAll('.step-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.step-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+}
+
+// ======= HELPERS =======
+function fmt(v) {
+  if (v === undefined || v === null || v === 'N/A' || v === '') return '-';
+  const n = parseFloat(v);
+  return isNaN(n) ? v : n.toLocaleString('en-US', { maximumFractionDigits: 3 });
+}
+
+function fmtP(v) {
+  if (v === undefined || v === null || v === 'N/A' || v === '') return '-';
+  const n = parseFloat(v);
+  if (isNaN(n)) return v;
+  if (n < 0.001) return '< .001';
+  return n.toFixed(3).replace(/^0/, '');
+}
+
+function decisionPill(d) {
+  if (!d) return '';
+  if (d.includes('Supported') || d.includes('✅')) return `<span class="pill pill-green">Desteklendi</span>`;
+  if (d.includes('Rejected') || d.includes('❌')) return `<span class="pill pill-red">Reddedildi</span>`;
+  if (d.includes('Mixed') || d.includes('⚠')) return `<span class="pill pill-yellow">Karisik</span>`;
+  return `<span class="pill pill-accent">${d}</span>`;
+}
+
+function emptyState(msg) {
+  return `<div class="empty-state">
+    <svg fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/></svg>
+    <p>${msg}</p>
+  </div>`;
+}
+
+// ======= STEP 0: ENUMERATION =======
+function renderEnumeration() {
+  const el = document.getElementById('panel0');
+  const items = data.enumeration || [];
+  if (!items.length) { el.innerHTML = emptyState('Enumeration verisi bulunamadi'); return; }
+
+  // Group by "Group X"
+  const groups = {};
+  items.forEach(item => {
+    const gm = item.model.match(/Group\s*(\d+)/i);
+    const g = gm ? 'Group ' + gm[1] : 'All';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(item);
+  });
+
+  let html = '<div class="section"><div class="section-head">Class Enumeration Results</div>';
+
+  Object.keys(groups).sort().forEach(gName => {
+    const gItems = groups[gName];
+    gItems.sort((a, b) => parseInt(a.k) - parseInt(b.k));
+
+    const bics = gItems.map(i => parseFloat(i.bic)).filter(n => !isNaN(n));
+    const minBIC = bics.length ? Math.min(...bics) : null;
+
+    html += `<div class="apa-table-wrap">
+      <div class="apa-table-title">Table. Fit Indices for Latent Profile Solutions — ${gName}</div>
+      <table class="apa-table">
+        <thead><tr>
+          <th>Model</th><th>k</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>CAIC</th><th>aBIC</th><th>aLMR p</th><th>BLRT p</th><th>Entropy</th><th>Smallest %</th>
+        </tr></thead><tbody>`;
+
+    gItems.forEach(item => {
+      const isBest = minBIC !== null && parseFloat(item.bic) === minBIC;
+      const smallestProp = item.proportions?.length ? (Math.min(...item.proportions) * 100).toFixed(1) + '%' : '-';
+      html += `<tr${isBest ? ' style="background:rgba(240,140,0,0.06);font-weight:600;"' : ''}>
+        <td class="row-label">${item.k}-Profile</td>
+        <td>${item.k}</td>
+        <td>${fmt(item.ll)}</td>
+        <td>${fmt(item.fp)}</td>
+        <td>${fmt(item.aic)}</td>
+        <td>${isBest ? '<span class="pill pill-green">★ ' + fmt(item.bic) + '</span>' : fmt(item.bic)}</td>
+        <td>${fmt(item.caic)}</td>
+        <td>${fmt(item.sabic)}</td>
+        <td>${fmtP(item.almr_p)}</td>
+        <td>${fmtP(item.blrt_p)}</td>
+        <td>${fmt(item.entropy)}</td>
+        <td>${smallestProp}</td>
+      </tr>`;
+    });
+
+    html += `</tbody></table>
+      <div class="apa-note">Note. LL = log-likelihood; #fp = number of free parameters; AIC = Akaike Information Criterion; BIC = Bayesian Information Criterion; CAIC = Consistent AIC; aBIC = sample-size adjusted BIC; aLMR = adjusted Lo-Mendell-Rubin test; BLRT = bootstrapped likelihood ratio test. Best fitting model highlighted.</div>
+    </div>`;
+  });
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ======= STEP 1: SIMILARITY =======
+function renderSimilarity() {
+  const el = document.getElementById('panel1');
+  const items = data.similarity || [];
+  if (!items.length) { el.innerHTML = emptyState('Similarity test verisi bulunamadi'); return; }
+
+  const stageOrder = ['Configural Similarity', 'Structural Similarity', 'Dispersion Similarity', 'Distributional Similarity'];
+  const stageLabels = ['Configural', 'Structural', 'Dispersion', 'Distributional'];
+
+  // Decision flow
+  let flowHtml = '<div class="decision-flow">';
+  stageOrder.forEach((stage, i) => {
+    const item = items.find(s => s.stage === stage);
+    const cls = item ? (item.decision.includes('✅') || item.decision.includes('Supported') ? 'supported' : item.decision.includes('❌') || item.decision.includes('Rejected') ? 'rejected' : 'mixed') : '';
+    flowHtml += `<div class="flow-step ${cls}">
+      <span class="flow-step-name">${stageLabels[i]}</span>
+      ${item ? decisionPill(item.decision) : '<span class="pill pill-accent">Veri yok</span>'}
+    </div>`;
+    if (i < stageOrder.length - 1) flowHtml += '<span class="flow-arrow">→</span>';
+  });
+  flowHtml += '</div>';
+
+  // Table
+  let tableHtml = `<div class="apa-table-wrap">
+    <div class="apa-table-title">Table. Fit Indices for Multi-Group Similarity Tests</div>
+    <table class="apa-table">
+      <thead><tr>
+        <th>Model</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>CAIC</th><th>aBIC</th><th>Entropy</th><th>Decision</th>
+      </tr></thead><tbody>`;
+
+  stageOrder.forEach(stage => {
+    const item = items.find(s => s.stage === stage);
+    if (!item) return;
+    tableHtml += `<tr>
+      <td class="row-label">${stage.replace(' Similarity', '')}</td>
+      <td>${fmt(item.ll)}</td>
+      <td>${fmt(item.fp)}</td>
+      <td>${fmt(item.aic)}</td>
+      <td>${fmt(item.bic)}</td>
+      <td>${fmt(item.caic)}</td>
+      <td>${fmt(item.sabic)}</td>
+      <td>${fmt(item.entropy)}</td>
+      <td>${decisionPill(item.decision)}</td>
+    </tr>`;
+  });
+
+  tableHtml += `</tbody></table>
+    <div class="apa-note">Note. Each row represents a progressively constrained model in the multi-group similarity testing sequence. Decision based on comparison of AIC, BIC, and aBIC with the preceding model.</div>
+  </div>`;
+
+  // Profile distribution
+  let distHtml = '';
+  const lastWithDist = [...items].reverse().find(s => s.latentTransition);
+  if (lastWithDist && lastWithDist.latentTransition) {
+    distHtml = `<div class="apa-table-wrap">
+      <div class="apa-table-title">Table. Profile Distribution by Group (${lastWithDist.stage.replace(' Similarity', '')} Model)</div>
+      <table class="apa-table"><thead><tr><th>Group</th>`;
+
+    const firstGroup = Object.keys(lastWithDist.latentTransition)[0];
+    const nProf = lastWithDist.latentTransition[firstGroup]?.length || 0;
+    for (let p = 1; p <= nProf; p++) distHtml += `<th>Profile ${p} (%)</th>`;
+    distHtml += '</tr></thead><tbody>';
+
+    Object.entries(lastWithDist.latentTransition).forEach(([gKey, profs]) => {
+      const gLabel = gKey.replace('group', 'Group ');
+      distHtml += `<tr><td class="row-label">${gLabel}</td>`;
+      profs.forEach(pct => { distHtml += `<td>${typeof pct === 'number' ? pct.toFixed(1) : pct}%</td>`; });
+      distHtml += '</tr>';
+    });
+
+    distHtml += '</tbody></table><div class="apa-note">Note. Percentages represent the proportion of each group assigned to each latent profile.</div></div>';
+  }
+
+  el.innerHTML = `<div class="section"><div class="section-head">Multi-Group Similarity Tests</div>${flowHtml}${tableHtml}${distHtml}</div>`;
+}
+
+// ======= STEP 2: PREDICTIVE =======
+function renderPredictive() {
+  const el = document.getElementById('panel2');
+  const items = data.predictive || [];
+  if (!items.length) { el.innerHTML = emptyState('Predictive similarity verisi bulunamadi'); return; }
+
+  // Fit table
+  let html = '<div class="section"><div class="section-head">Predictive Similarity (Step 3)</div>';
+
+  // Find models with multinomial results
+  const withResults = items.filter(p => p.multinomialResults && Object.keys(p.multinomialResults).length > 0);
+
+  if (withResults.length > 0) {
+    withResults.forEach((pred, pi) => {
+      const mr = pred.multinomialResults;
+      const predictors = Object.keys(mr);
+
+      html += `<div class="apa-table-wrap">
+        <div class="apa-table-title">Table. Multinomial Logistic Regression — ${pred.model || 'Predictive Model'} (Ref: Profile ${pred.referenceProfile || '?'})</div>
+        <table class="apa-table">
+          <thead><tr>
+            <th>Predictor</th><th>Comparison</th><th>Group</th><th>B</th><th>SE</th><th>p</th><th>OR</th>
+          </tr></thead><tbody>`;
+
+      predictors.forEach(predName => {
+        const comparisons = Object.keys(mr[predName]);
+        comparisons.forEach((comp, ci) => {
+          const groups = Object.keys(mr[predName][comp]);
+          groups.forEach((gKey, gi) => {
+            const r = mr[predName][comp][gKey];
+            const sig = r.pValue < 0.05;
+            html += `<tr>
+              <td class="row-label">${ci === 0 && gi === 0 ? predName : ''}</td>
+              <td>${gi === 0 ? comp.replace(/_/g, ' ') : ''}</td>
+              <td>${gKey.replace('group', 'Group ')}</td>
+              <td${sig ? ' style="font-weight:700;"' : ''}>${r.coef?.toFixed(3) || '-'}</td>
+              <td>${r.se?.toFixed(3) || '-'}</td>
+              <td>${sig ? '<span class="pill pill-green">' + fmtP(r.pValue) + '</span>' : fmtP(r.pValue)}</td>
+              <td>${r.or?.toFixed(3) || '-'}</td>
+            </tr>`;
+          });
+        });
+      });
+
+      html += `</tbody></table>
+        <div class="apa-note">Note. B = unstandardized logistic regression coefficient; SE = standard error; OR = odds ratio. Reference profile: Profile ${pred.referenceProfile || '?'}. Significant predictors (p < .05) highlighted.</div>
+      </div>`;
+    });
+  } else {
+    // Just show fit table
+    html += `<div class="apa-table-wrap">
+      <div class="apa-table-title">Table. Fit Indices for Predictive Similarity Models</div>
+      <table class="apa-table">
+        <thead><tr><th>Model</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>aBIC</th><th>Entropy</th><th>Decision</th></tr></thead><tbody>`;
+    items.forEach(p => {
+      html += `<tr>
+        <td class="row-label">${p.model}</td><td>${fmt(p.ll)}</td><td>${fmt(p.fp)}</td>
+        <td>${fmt(p.aic)}</td><td>${fmt(p.bic)}</td><td>${fmt(p.sabic)}</td><td>${fmt(p.entropy)}</td>
+        <td>${decisionPill(p.decision)}</td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ======= STEP 3: EXPLANATORY =======
+function renderExplanatory() {
+  const el = document.getElementById('panel3');
+  const items = data.explanatory || [];
+  if (!items.length) { el.innerHTML = emptyState('Explanatory similarity verisi bulunamadi'); return; }
+
+  let html = '<div class="section"><div class="section-head">Explanatory Similarity (Step 4)</div>';
+
+  // Fit table
+  html += `<div class="apa-table-wrap">
+    <div class="apa-table-title">Table. Fit Indices for Explanatory Similarity Models</div>
+    <table class="apa-table">
+      <thead><tr><th>Model</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>aBIC</th><th>Entropy</th><th>Decision</th></tr></thead><tbody>`;
+  items.forEach(e => {
+    html += `<tr>
+      <td class="row-label">${e.model}</td><td>${fmt(e.ll)}</td><td>${fmt(e.fp)}</td>
+      <td>${fmt(e.aic)}</td><td>${fmt(e.bic)}</td><td>${fmt(e.sabic)}</td><td>${fmt(e.entropy)}</td>
+      <td>${decisionPill(e.decision)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+
+  // Explanatory results table
+  const withResults = items.filter(e => e.explanatoryResults && Object.keys(e.explanatoryResults).length > 0);
+  withResults.forEach(expl => {
+    const er = expl.explanatoryResults;
+    const outcomes = Object.keys(er);
+
+    html += `<div class="apa-table-wrap">
+      <div class="apa-table-title">Table. Distal Outcome Means by Profile — ${expl.model}</div>
+      <table class="apa-table">
+        <thead><tr><th>Outcome</th><th>Profile</th><th>Estimate</th><th>SE</th><th>t</th><th>p</th><th>95% CI</th></tr></thead><tbody>`;
+
+    outcomes.forEach(outName => {
+      const profiles = Object.keys(er[outName]);
+      profiles.forEach((prof, pi) => {
+        const r = er[outName][prof];
+        const sig = r.pValue < 0.05;
+        html += `<tr>
+          <td class="row-label">${pi === 0 ? outName : ''}</td>
+          <td>${prof.replace('C', 'Profile ')}</td>
+          <td${sig ? ' style="font-weight:700;"' : ''}>${r.estimate?.toFixed(3) || '-'}</td>
+          <td>${r.standardError?.toFixed(3) || '-'}</td>
+          <td>${r.tValue?.toFixed(3) || '-'}</td>
+          <td>${sig ? '<span class="pill pill-green">' + fmtP(r.pValue) + '</span>' : fmtP(r.pValue)}</td>
+          <td>[${r.ciLower?.toFixed(3) || '-'}, ${r.ciUpper?.toFixed(3) || '-'}]</td>
+        </tr>`;
+      });
+    });
+
+    html += `</tbody></table>
+      <div class="apa-note">Note. SE = standard error; CI = confidence interval. Significant effects (p < .05) highlighted.</div>
+    </div>`;
+  });
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ======= STEP 4: FULL REPORT =======
+function renderFullReport() {
+  const el = document.getElementById('panel4');
+
+  // Summary cards
+  const enumCount = data.enumeration?.length || 0;
+  const simCount = data.similarity?.length || 0;
+  const predCount = data.predictive?.length || 0;
+  const explCount = data.explanatory?.length || 0;
+  const vars = data.config?.profileVars?.join(', ') || '-';
+
+  let html = `<div class="summary-row">
+    <div class="summary-card">
+      <div class="summary-label">Enumeration</div>
+      <div class="summary-value">${enumCount} <span>model</span></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Similarity</div>
+      <div class="summary-value">${simCount} <span>test</span></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Predictive</div>
+      <div class="summary-value">${predCount} <span>model</span></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Explanatory</div>
+      <div class="summary-value">${explCount} <span>model</span></div>
+    </div>
+  </div>`;
+
+  // Build full prompt
+  const prompt = buildFullPrompt();
+
+  html += `<div class="prompt-card">
+    <div class="prompt-header">
+      <span class="prompt-title">Tam APA Rapor Promptu</span>
+      <button class="btn btn-primary" onclick="downloadWord()" id="downloadBtnFull">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+        Word Indir
+      </button>
+    </div>
+    <div class="prompt-body" id="fullPromptBody">${escHtml(prompt)}</div>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildFullPrompt() {
+  const cfg = data.config || {};
+  const vars = cfg.profileVars?.join(', ') || 'belirtilmemis';
+
+  let p = `Asagidaki tum Multi-Group Latent Profil Analizi (MG-LPA) sonuclarini APA 7 formatinda, akademik Turkce ile, tek bir "Results" bolumu olarak yaz. Her adimi ayri bir alt baslik altinda raporla. APA tarzinda tablolara referans ver (ornegin "Table 1", "Table 2").\n\n`;
+  p += `=== CALISMA BILGILERI ===\n`;
+  p += `Gosterge degiskenleri: ${vars}\n`;
+  p += `Grup degiskeni: ${cfg.groupVar || '-'}\n`;
+  p += `Grup sayisi: ${cfg.nGroups || '-'}\n`;
+  p += `Varyans yapisi: ${cfg.varianceSpec === 'free' ? 'Serbest (free)' : 'Sabit (fixed)'}\n`;
+  if (cfg.predictors) p += `Yordayicilar (predictors): ${cfg.predictors}\n`;
+  if (cfg.outcomes) p += `Sonuc degiskenleri (outcomes): ${cfg.outcomes}\n`;
+  p += '\n';
+
+  // STEP 0
+  if (data.enumeration?.length) {
+    p += `=== ADIM 0: CLASS ENUMERATION ===\n`;
+
+    const groups = {};
+    data.enumeration.forEach(item => {
+      const gm = item.model.match(/Group\s*(\d+)/i);
+      const g = gm ? 'Group ' + gm[1] : 'All';
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(item);
+    });
+
+    Object.keys(groups).sort().forEach(gName => {
+      const gItems = groups[gName];
+      gItems.sort((a, b) => parseInt(a.k) - parseInt(b.k));
+
+      p += `\n${gName}:\n`;
+      p += `| Model | k | LL | #fp | AIC | BIC | CAIC | aBIC | aLMR p | BLRT p | Entropy | Smallest % |\n`;
+      p += `|-------|---|-----|-----|-----|-----|------|------|--------|--------|---------|------------|\n`;
+
+      gItems.forEach(item => {
+        const sp = item.proportions?.length ? (Math.min(...item.proportions) * 100).toFixed(1) + '%' : '-';
+        p += `| ${item.k}-Profile | ${item.k} | ${fmt(item.ll)} | ${fmt(item.fp)} | ${fmt(item.aic)} | ${fmt(item.bic)} | ${fmt(item.caic)} | ${fmt(item.sabic)} | ${fmtP(item.almr_p)} | ${fmtP(item.blrt_p)} | ${fmt(item.entropy)} | ${sp} |\n`;
+      });
+    });
+    p += '\n';
+  }
+
+  // STEP 1
+  if (data.similarity?.length) {
+    p += `=== ADIM 1: SIMILARITY TESTS ===\n`;
+    p += `| Model | LL | #fp | AIC | BIC | CAIC | aBIC | Entropy | Decision |\n`;
+    p += `|-------|-----|-----|-----|-----|------|------|---------|----------|\n`;
+
+    const stageOrder = ['Configural Similarity', 'Structural Similarity', 'Dispersion Similarity', 'Distributional Similarity'];
+    stageOrder.forEach(stage => {
+      const item = data.similarity.find(s => s.stage === stage);
+      if (!item) return;
+      const dec = item.decision.includes('✅') ? 'Desteklendi' : item.decision.includes('❌') ? 'Reddedildi' : 'Karisik';
+      p += `| ${stage.replace(' Similarity', '')} | ${fmt(item.ll)} | ${fmt(item.fp)} | ${fmt(item.aic)} | ${fmt(item.bic)} | ${fmt(item.caic)} | ${fmt(item.sabic)} | ${fmt(item.entropy)} | ${dec} |\n`;
+    });
+
+    // Latent transition
+    const lastWithDist = [...data.similarity].reverse().find(s => s.latentTransition);
+    if (lastWithDist?.latentTransition) {
+      p += `\nProfile Distribution:\n`;
+      Object.entries(lastWithDist.latentTransition).forEach(([gKey, profs]) => {
+        p += `${gKey.replace('group', 'Group ')}: ${profs.map((pct, i) => `Profile ${i+1} = ${typeof pct === 'number' ? pct.toFixed(1) : pct}%`).join(', ')}\n`;
+      });
+    }
+    p += '\n';
+  }
+
+  // STEP 3
+  if (data.predictive?.length) {
+    p += `=== ADIM 3: PREDICTIVE SIMILARITY ===\n`;
+
+    const withMR = data.predictive.filter(pr => pr.multinomialResults && Object.keys(pr.multinomialResults).length > 0);
+    if (withMR.length > 0) {
+      withMR.forEach(pred => {
+        p += `Model: ${pred.model} (Referans profil: ${pred.referenceProfile || '?'})\n`;
+        p += `| Predictor | Comparison | Group | B | SE | p | OR |\n`;
+        p += `|-----------|------------|-------|---|----|---|----|\n`;
+
+        const mr = pred.multinomialResults;
+        Object.keys(mr).forEach(predName => {
+          Object.keys(mr[predName]).forEach(comp => {
+            Object.keys(mr[predName][comp]).forEach(gKey => {
+              const r = mr[predName][comp][gKey];
+              p += `| ${predName} | ${comp.replace(/_/g, ' ')} | ${gKey.replace('group', 'Group ')} | ${r.coef?.toFixed(3) || '-'} | ${r.se?.toFixed(3) || '-'} | ${fmtP(r.pValue)} | ${r.or?.toFixed(3) || '-'} |\n`;
+            });
+          });
+        });
+        p += '\n';
+      });
+    } else {
+      data.predictive.forEach(pr => {
+        p += `${pr.model}: AIC=${fmt(pr.aic)}, BIC=${fmt(pr.bic)}, Entropy=${fmt(pr.entropy)}, Decision=${pr.decision || '-'}\n`;
+      });
+      p += '\n';
+    }
+  }
+
+  // STEP 4
+  if (data.explanatory?.length) {
+    p += `=== ADIM 4: EXPLANATORY SIMILARITY ===\n`;
+
+    data.explanatory.forEach(expl => {
+      p += `Model: ${expl.model} (AIC=${fmt(expl.aic)}, BIC=${fmt(expl.bic)}, Entropy=${fmt(expl.entropy)})\n`;
+      p += `Decision: ${expl.decision || '-'}\n`;
+
+      if (expl.explanatoryResults) {
+        p += `| Outcome | Profile | Estimate | SE | t | p | 95% CI |\n`;
+        p += `|---------|---------|----------|----|----|---|--------|\n`;
+
+        Object.keys(expl.explanatoryResults).forEach(outName => {
+          Object.keys(expl.explanatoryResults[outName]).forEach(prof => {
+            const r = expl.explanatoryResults[outName][prof];
+            p += `| ${outName} | ${prof} | ${r.estimate?.toFixed(3) || '-'} | ${r.standardError?.toFixed(3) || '-'} | ${r.tValue?.toFixed(3) || '-'} | ${fmtP(r.pValue)} | [${r.ciLower?.toFixed(3) || '-'}, ${r.ciUpper?.toFixed(3) || '-'}] |\n`;
+          });
+        });
+        p += '\n';
+      }
+    });
+  }
+
+  p += `=== TALIMATLAR ===\n`;
+  p += `1. Yukaridaki tum verileri APA 7 formatinda, akademik Turkce ile, tek bir "Bulgular (Results)" bolumu olarak yaz.\n`;
+  p += `2. Her adimi ayri alt basliklar altinda raporla: "Profil Sayisinin Belirlenmesi (Class Enumeration)", "Cok-Gruplu Benzerlik Testleri (Multi-Group Similarity)", "Yordayici Benzerlik (Predictive Similarity)", "Aciklayici Benzerlik (Explanatory Similarity)".\n`;
+  p += `3. Tablolara "Tablo 1", "Tablo 2" seklinde referans ver ve her tablo icin APA formatlı bir baslik yaz.\n`;
+  p += `4. Fit indekslerini (AIC, BIC, aBIC, entropy), test istatistiklerini (BLRT, aLMR) ve karar kriterlerini acikla.\n`;
+  p += `5. Similarity test sonuclarini yorumla: Hangi duzey desteklendi? Profil yapisi, dagilimi, varyans ve profil oranlari gruplar arasinda ne olcude benzer?\n`;
+  p += `6. Predictive ve Explanatory sonuclarini odds ratio ve guven araliklari ile birlikte yorumla.\n`;
+  p += `7. Sinirliliklar bolumunde orneklem buyuklugu, profil oranlari ve entropy ile ilgili olasi sorunlari belirt.\n`;
+
+  return p;
+}
+
+function downloadWord() {
+  const wordContent = buildWordDocument();
+  const blob = new Blob([wordContent], { type: 'application/msword' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'MG-LPA_Full_APA_Report.doc';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // Button feedback
+  const btns = document.querySelectorAll('[onclick="downloadWord()"]');
+  btns.forEach(btn => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg> Indirildi!';
+    setTimeout(() => { btn.innerHTML = orig; }, 2000);
+  });
+}
+
+function buildWordDocument() {
+  const cfg = data.config || {};
+  const vars = cfg.profileVars?.join(', ') || '-';
+
+  let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"><title>MG-LPA Full APA Report</title>
+<style>
+  @page { size: A4; margin: 2.54cm; }
+  body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 2; color: #000; }
+  h1 { font-size: 14pt; font-weight: bold; text-align: center; margin: 24pt 0 12pt; }
+  h2 { font-size: 12pt; font-weight: bold; font-style: italic; margin: 18pt 0 6pt; }
+  h3 { font-size: 12pt; font-weight: bold; margin: 12pt 0 6pt; }
+  p { margin: 0 0 6pt; text-indent: 0.5in; }
+  p.no-indent { text-indent: 0; }
+  p.table-title { font-style: italic; text-indent: 0; margin: 12pt 0 4pt; }
+  p.table-note { font-size: 10pt; text-indent: 0; margin: 4pt 0 12pt; line-height: 1.5; }
+  table { border-collapse: collapse; width: 100%; margin: 8pt 0; font-size: 11pt; line-height: 1.4; }
+  th { border-top: 2pt solid #000; border-bottom: 1pt solid #000; padding: 4pt 6pt; text-align: center; font-weight: bold; font-size: 10pt; }
+  td { padding: 3pt 6pt; text-align: center; border-bottom: none; font-size: 10pt; }
+  td:first-child, th:first-child { text-align: left; }
+  tbody tr:last-child td { border-bottom: 2pt solid #000; }
+  .sig { font-weight: bold; }
+  .group-row td { font-weight: bold; font-style: italic; padding-top: 8pt; border-bottom: 1pt solid #ccc; text-align: left; }
+  .best { font-weight: bold; }
+  .decision-supported { color: #1A9E6E; font-weight: bold; }
+  .decision-rejected { color: #D94F3D; font-weight: bold; }
+  .decision-mixed { color: #E5A100; font-weight: bold; }
+</style></head><body>`;
+
+  // TITLE
+  html += `<h1>Results</h1>`;
+
+  // ===== ENUMERATION =====
+  if (data.enumeration?.length) {
+    html += `<h2>Profile Enumeration (Class Enumeration)</h2>`;
+    html += `<p>To determine the optimal number of latent profiles, models with varying numbers of profiles were estimated separately for each group. Model fit was evaluated using multiple criteria: Akaike Information Criterion (AIC), Bayesian Information Criterion (BIC), sample-size adjusted BIC (aBIC), entropy, the adjusted Lo-Mendell-Rubin likelihood ratio test (aLMR), and the bootstrapped likelihood ratio test (BLRT).</p>`;
+
+    const groups = {};
+    data.enumeration.forEach(item => {
+      const gm = item.model.match(/Group\s*(\d+)/i);
+      const g = gm ? 'Group ' + gm[1] : 'All';
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(item);
+    });
+
+    let tableNum = 1;
+    Object.keys(groups).sort().forEach(gName => {
+      const gItems = groups[gName];
+      gItems.sort((a, b) => parseInt(a.k) - parseInt(b.k));
+      const bics = gItems.map(i => parseFloat(i.bic)).filter(n => !isNaN(n));
+      const minBIC = bics.length ? Math.min(...bics) : null;
+
+      html += `<p class="table-title">Table ${tableNum}. Fit Indices for Latent Profile Solutions \u2014 ${gName}</p>`;
+      html += `<table><thead><tr><th>Model</th><th><i>k</i></th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>CAIC</th><th>aBIC</th><th>aLMR <i>p</i></th><th>BLRT <i>p</i></th><th>Entropy</th><th>Smallest %</th></tr></thead><tbody>`;
+
+      gItems.forEach(item => {
+        const isBest = minBIC !== null && parseFloat(item.bic) === minBIC;
+        const sp = item.proportions?.length ? (Math.min(...item.proportions) * 100).toFixed(1) + '%' : '\u2014';
+        html += `<tr${isBest ? ' class="best"' : ''}>
+          <td>${item.k}-Profile</td><td>${item.k}</td><td>${fmt(item.ll)}</td><td>${fmt(item.fp)}</td>
+          <td>${fmt(item.aic)}</td><td>${isBest ? '<b>' + fmt(item.bic) + '</b>' : fmt(item.bic)}</td>
+          <td>${fmt(item.caic)}</td><td>${fmt(item.sabic)}</td>
+          <td>${fmtP(item.almr_p)}</td><td>${fmtP(item.blrt_p)}</td><td>${fmt(item.entropy)}</td><td>${sp}</td>
+        </tr>`;
+      });
+
+      html += `</tbody></table>`;
+      html += `<p class="table-note"><i>Note.</i> LL = log-likelihood; #fp = number of free parameters; AIC = Akaike Information Criterion; BIC = Bayesian Information Criterion; CAIC = Consistent AIC; aBIC = sample-size adjusted BIC; aLMR = adjusted Lo-Mendell-Rubin test; BLRT = bootstrapped likelihood ratio test. Best fitting model (lowest BIC) in bold.</p>`;
+      tableNum++;
+    });
+  }
+
+  // ===== SIMILARITY =====
+  if (data.similarity?.length) {
+    html += `<h2>Multi-Group Similarity Tests</h2>`;
+    html += `<p>Following the identification of the optimal number of profiles, a series of increasingly constrained multi-group models were estimated to test measurement invariance across groups. The sequence followed the recommended approach: configural (same number of profiles), structural (equal means), dispersion (equal variances), and distributional (equal class proportions) similarity.</p>`;
+
+    const stageOrder = ['Configural Similarity', 'Structural Similarity', 'Dispersion Similarity', 'Distributional Similarity'];
+
+    let tableNum = (data.enumeration?.length ? Object.keys((() => { const g = {}; data.enumeration.forEach(i => { const m = i.model.match(/Group\s*(\d+)/i); g[m ? 'Group ' + m[1] : 'All'] = 1; }); return g; })()).length : 0) + 1;
+
+    html += `<p class="table-title">Table ${tableNum}. Fit Indices for Multi-Group Similarity Testing Sequence</p>`;
+    html += `<table><thead><tr><th>Model</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>CAIC</th><th>aBIC</th><th>Entropy</th><th>Decision</th></tr></thead><tbody>`;
+
+    stageOrder.forEach(stage => {
+      const item = data.similarity.find(s => s.stage === stage);
+      if (!item) return;
+      const dec = item.decision.includes('\u2705') || item.decision.includes('Supported') ? 'Supported' : item.decision.includes('\u274C') || item.decision.includes('Rejected') ? 'Rejected' : 'Mixed';
+      const decClass = dec === 'Supported' ? 'decision-supported' : dec === 'Rejected' ? 'decision-rejected' : 'decision-mixed';
+      html += `<tr>
+        <td>${stage.replace(' Similarity', '')}</td><td>${fmt(item.ll)}</td><td>${fmt(item.fp)}</td>
+        <td>${fmt(item.aic)}</td><td>${fmt(item.bic)}</td><td>${fmt(item.caic)}</td><td>${fmt(item.sabic)}</td>
+        <td>${fmt(item.entropy)}</td><td class="${decClass}">${dec}</td>
+      </tr>`;
+    });
+
+    html += `</tbody></table>`;
+    html += `<p class="table-note"><i>Note.</i> Each row represents a progressively constrained model. Decision based on comparison of AIC, BIC, and aBIC with the preceding (less constrained) model. Supported = at least 2 of 3 indices improved; Rejected = none improved; Mixed = 1 of 3 improved.</p>`;
+    tableNum++;
+
+    // Profile distribution
+    const lastWithDist = [...data.similarity].reverse().find(s => s.latentTransition);
+    if (lastWithDist?.latentTransition) {
+      html += `<p class="table-title">Table ${tableNum}. Latent Profile Distribution by Group</p>`;
+      html += `<table><thead><tr><th>Group</th>`;
+      const firstGroup = Object.keys(lastWithDist.latentTransition)[0];
+      const nProf = lastWithDist.latentTransition[firstGroup]?.length || 0;
+      for (let p = 1; p <= nProf; p++) html += `<th>Profile ${p} (%)</th>`;
+      html += `</tr></thead><tbody>`;
+
+      Object.entries(lastWithDist.latentTransition).forEach(([gKey, profs]) => {
+        html += `<tr><td>${gKey.replace('group', 'Group ')}</td>`;
+        profs.forEach(pct => { html += `<td>${typeof pct === 'number' ? pct.toFixed(1) : pct}</td>`; });
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+      html += `<p class="table-note"><i>Note.</i> Values represent the percentage of participants in each group assigned to each latent profile based on most likely class membership.</p>`;
+      tableNum++;
+    }
+  }
+
+  // ===== PREDICTIVE =====
+  if (data.predictive?.length) {
+    html += `<h2>Predictive Similarity</h2>`;
+    html += `<p>To examine whether the predictors of profile membership were equivalent across groups, multinomial logistic regression models were estimated. Predictive similarity was assessed by comparing freely estimated and constrained models.</p>`;
+
+    let tableNum = 10; // safe offset
+    const withMR = data.predictive.filter(pr => pr.multinomialResults && Object.keys(pr.multinomialResults).length > 0);
+
+    if (withMR.length > 0) {
+      withMR.forEach(pred => {
+        const mr = pred.multinomialResults;
+        const predictors = Object.keys(mr);
+
+        html += `<p class="table-title">Table. Multinomial Logistic Regression Results \u2014 ${pred.model} (Reference: Profile ${pred.referenceProfile || '?'})</p>`;
+        html += `<table><thead><tr><th>Predictor</th><th>Comparison</th><th>Group</th><th><i>B</i></th><th><i>SE</i></th><th><i>p</i></th><th>OR</th></tr></thead><tbody>`;
+
+        predictors.forEach(predName => {
+          const comparisons = Object.keys(mr[predName]);
+          let firstPred = true;
+          comparisons.forEach(comp => {
+            const groups = Object.keys(mr[predName][comp]);
+            let firstComp = true;
+            groups.forEach(gKey => {
+              const r = mr[predName][comp][gKey];
+              const sig = r.pValue < 0.05;
+              html += `<tr>
+                <td>${firstPred ? predName : ''}</td>
+                <td>${firstComp ? comp.replace(/_/g, ' ') : ''}</td>
+                <td>${gKey.replace('group', 'Group ')}</td>
+                <td${sig ? ' class="sig"' : ''}>${r.coef?.toFixed(3) || '\u2014'}</td>
+                <td>${r.se?.toFixed(3) || '\u2014'}</td>
+                <td${sig ? ' class="sig"' : ''}>${fmtP(r.pValue)}</td>
+                <td>${r.or?.toFixed(3) || '\u2014'}</td>
+              </tr>`;
+              firstPred = false;
+              firstComp = false;
+            });
+          });
+        });
+
+        html += `</tbody></table>`;
+        html += `<p class="table-note"><i>Note.</i> <i>B</i> = unstandardized logistic regression coefficient; <i>SE</i> = standard error; OR = odds ratio = exp(<i>B</i>). Reference category: Profile ${pred.referenceProfile || '?'}. Significant effects (<i>p</i> < .05) in bold.</p>`;
+      });
+    } else {
+      html += `<table><thead><tr><th>Model</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>aBIC</th><th>Entropy</th><th>Decision</th></tr></thead><tbody>`;
+      data.predictive.forEach(p => {
+        html += `<tr><td>${p.model}</td><td>${fmt(p.ll)}</td><td>${fmt(p.fp)}</td><td>${fmt(p.aic)}</td><td>${fmt(p.bic)}</td><td>${fmt(p.sabic)}</td><td>${fmt(p.entropy)}</td><td>${p.decision || '\u2014'}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+  }
+
+  // ===== EXPLANATORY =====
+  if (data.explanatory?.length) {
+    html += `<h2>Explanatory Similarity</h2>`;
+    html += `<p>To examine whether distal outcomes differed across profiles and whether these differences were equivalent across groups, explanatory similarity models were estimated.</p>`;
+
+    // Fit table
+    html += `<p class="table-title">Table. Fit Indices for Explanatory Similarity Models</p>`;
+    html += `<table><thead><tr><th>Model</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>aBIC</th><th>Entropy</th><th>Decision</th></tr></thead><tbody>`;
+    data.explanatory.forEach(e => {
+      const dec = e.decision.includes('\u2705') || e.decision.includes('Supported') ? 'Supported' : e.decision.includes('\u274C') || e.decision.includes('Rejected') ? 'Rejected' : 'Mixed';
+      const decClass = dec === 'Supported' ? 'decision-supported' : dec === 'Rejected' ? 'decision-rejected' : 'decision-mixed';
+      html += `<tr><td>${e.model}</td><td>${fmt(e.ll)}</td><td>${fmt(e.fp)}</td><td>${fmt(e.aic)}</td><td>${fmt(e.bic)}</td><td>${fmt(e.sabic)}</td><td>${fmt(e.entropy)}</td><td class="${decClass}">${dec}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+
+    // Distal outcome results
+    const withER = data.explanatory.filter(e => e.explanatoryResults && Object.keys(e.explanatoryResults).length > 0);
+    withER.forEach(expl => {
+      const er = expl.explanatoryResults;
+      html += `<p class="table-title">Table. Distal Outcome Means by Profile \u2014 ${expl.model}</p>`;
+      html += `<table><thead><tr><th>Outcome</th><th>Profile</th><th>Estimate</th><th><i>SE</i></th><th><i>t</i></th><th><i>p</i></th><th>95% CI</th></tr></thead><tbody>`;
+
+      Object.keys(er).forEach(outName => {
+        let firstOut = true;
+        Object.keys(er[outName]).forEach(prof => {
+          const r = er[outName][prof];
+          const sig = r.pValue < 0.05;
+          html += `<tr>
+            <td>${firstOut ? outName : ''}</td>
+            <td>${prof.replace('C', 'Profile ')}</td>
+            <td${sig ? ' class="sig"' : ''}>${r.estimate?.toFixed(3) || '\u2014'}</td>
+            <td>${r.standardError?.toFixed(3) || '\u2014'}</td>
+            <td>${r.tValue?.toFixed(3) || '\u2014'}</td>
+            <td${sig ? ' class="sig"' : ''}>${fmtP(r.pValue)}</td>
+            <td>[${r.ciLower?.toFixed(3) || '\u2014'}, ${r.ciUpper?.toFixed(3) || '\u2014'}]</td>
+          </tr>`;
+          firstOut = false;
+        });
+      });
+
+      html += `</tbody></table>`;
+      html += `<p class="table-note"><i>Note.</i> <i>SE</i> = standard error; CI = confidence interval. Significant effects (<i>p</i> < .05) in bold.</p>`;
+    });
+  }
+
+  html += `</body></html>`;
+  return html;
+}
+
+init();
+</script>
+</body>
+</html>

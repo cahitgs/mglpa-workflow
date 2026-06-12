@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPA Fit Index Interpreter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #EDE8DC;
+    --surface: #F7F4EE;
+    --surface-raised: #FFFFFF;
+    --header-bg: #1A1919;
+    --header-text: #F7F4EE;
+    --accent: #F08C00;
+    --accent-dark: #D97A00;
+    --accent-text: #1A1919;
+    --success: #1A9E6E;
+    --success-bg: rgba(26,158,110,0.1);
+    --danger: #D94F3D;
+    --danger-bg: rgba(217,79,61,0.08);
+    --warning: #E5A100;
+    --warning-bg: rgba(229,161,0,0.1);
+    --text-1: #1A1919;
+    --text-2: #5A5750;
+    --text-3: #9A9590;
+    --border: #DDD8CE;
+    --border-dark: #C5BFB4;
+}
+
+body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 20px;
+    color: var(--text-1);
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 3px; }
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    overflow: hidden;
+}
+
+/* HEADER */
+.header {
+    background: var(--header-bg);
+    color: var(--header-text);
+    padding: 18px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.header-left p {
+    font-size: 12px;
+    color: rgba(247,244,238,0.5);
+    margin-top: 2px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(240,140,0,0.15);
+    border: 1px solid rgba(240,140,0,0.3);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: rgba(26,158,110,0.15);
+    border-color: rgba(26,158,110,0.3);
+    color: var(--success);
+}
+
+/* GROUP TABS */
+.group-tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(255,255,255,0.08);
+    padding: 3px;
+    border-radius: 10px;
+}
+
+.group-tab {
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: rgba(247,244,238,0.5);
+    background: transparent;
+}
+
+.group-tab:hover { color: var(--header-text); }
+
+.group-tab.active {
+    background: var(--accent);
+    color: var(--accent-text);
+}
+
+/* CONTENT */
+.content {
+    padding: 24px;
+}
+
+/* CARDS */
+.card {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-1);
+}
+
+.card-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 20px;
+}
+
+.card-badge-green {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.card-badge-red {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.card-badge-yellow {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+.card-body { padding: 16px 20px; }
+
+/* TABLE */
+.fit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.fit-table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-3);
+    border-bottom: 2px solid var(--border);
+    background: var(--surface);
+}
+
+.fit-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+}
+
+.fit-table tr:last-child td { border-bottom: none; }
+
+.fit-table tr.optimal-row {
+    background: rgba(240,140,0,0.06);
+}
+
+.fit-table tr.optimal-row td {
+    color: var(--text-1);
+    font-weight: 600;
+}
+
+.fit-table .model-col {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    color: var(--text-1);
+    font-size: 13px;
+}
+
+.best-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--success-bg);
+    color: var(--success);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.warn-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--danger-bg);
+    color: var(--danger);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.ok-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--warning-bg);
+    color: var(--warning);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* ENTROPY BARS */
+.entropy-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.entropy-row + .entropy-row { border-top: 1px solid var(--border); }
+
+.entropy-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-2);
+    min-width: 65px;
+}
+
+.entropy-label.is-optimal {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.entropy-bar-track {
+    flex: 1;
+    height: 10px;
+    background: var(--bg);
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.entropy-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.4s ease;
+}
+
+.entropy-bar-marks {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+}
+
+.entropy-mark {
+    position: absolute;
+    top: -2px;
+    width: 2px;
+    height: 14px;
+    border-radius: 1px;
+}
+
+.entropy-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 45px;
+    text-align: right;
+}
+
+/* RECOMMENDATION */
+.rec-box {
+    background: rgba(240,140,0,0.06);
+    border: 1.5px solid rgba(240,140,0,0.2);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.rec-optimal {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    color: var(--accent-text);
+    padding: 6px 18px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    margin-bottom: 14px;
+}
+
+.rec-reasons {
+    list-style: none;
+    padding: 0;
+}
+
+.rec-reasons li {
+    font-size: 13px;
+    color: var(--text-2);
+    padding: 3px 0;
+    padding-left: 18px;
+    position: relative;
+}
+
+.rec-reasons li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--success);
+    font-weight: 700;
+}
+
+.rec-reasons li.warn::before {
+    content: '!';
+    color: var(--danger);
+}
+
+/* PROMPT */
+.prompt-card {
+    background: var(--header-bg);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.prompt-header {
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.prompt-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(247,244,238,0.4);
+}
+
+.copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent);
+    border: none;
+    color: var(--accent-text);
+    padding: 7px 18px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.copy-btn:hover {
+    background: #FFAA22;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(240,140,0,0.3);
+}
+
+.copy-btn:active { transform: scale(0.96); }
+
+.prompt-body {
+    padding: 16px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: rgba(247,244,238,0.6);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.prompt-body::-webkit-scrollbar { width: 4px; }
+.prompt-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* GRID */
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 800px) {
+    .two-col { grid-template-columns: 1fr; }
+    body { padding: 10px; }
+    .header { flex-direction: column; align-items: flex-start; }
+}
+
+/* FOOTER NAV */
+.footer-nav {
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--surface);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+    background: var(--accent);
+    color: var(--accent-text);
+}
+
+.btn-primary:hover {
+    background: #FFAA22;
+    box-shadow: 0 4px 16px rgba(240,140,0,0.35);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: var(--surface-raised);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    border-color: var(--border-dark);
+    color: var(--text-1);
+}
+
+/* COMPARE SECTION */
+.compare-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.compare-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: border-color 0.2s;
+}
+
+.compare-card.highlight {
+    border-color: var(--accent);
+    background: rgba(240,140,0,0.04);
+}
+
+.compare-group {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-3);
+    margin-bottom: 8px;
+}
+
+.compare-k {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.compare-k span {
+    font-size: 14px;
+    color: var(--text-2);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+}
+
+.compare-stats {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-left">
+            <h1>LPA Fit Index Interpreter</h1>
+            <p>Optimal profil sayisi karar araci</p>
+        </div>
+        <div class="header-right">
+            <div class="group-tabs" id="groupTabs" style="display:none;"></div>
+            <span class="badge" id="sourceLabel">Playground</span>
+            <button class="btn-secondary btn" onclick="refreshFromApp()" id="refreshBtn" style="display:none;">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg>
+                Yenile
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- COMPARE (multi-group) -->
+        <div id="compareSection" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Grup Karsilastirmasi</span>
+                </div>
+                <div class="card-body">
+                    <div class="compare-grid" id="compareGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <!-- LEFT: Fit Table -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Fit Indeksleri</span>
+                        <span class="card-badge card-badge-green" id="optimalBadge">-</span>
+                    </div>
+                    <div class="card-body" style="padding:0;">
+                        <div style="overflow-x:auto;">
+                            <table class="fit-table" id="fitTable"></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Oneri</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="rec-box" id="recBox"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Entropy + Details -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Entropy Degerlendirmesi</span>
+                        <span class="card-badge" id="entropyBadge">-</span>
+                    </div>
+                    <div class="card-body" id="entropyBody"></div>
+                </div>
+
+                <!-- BLRT Summary -->
+                <div class="card" id="blrtCard">
+                    <div class="card-header">
+                        <span class="card-title">BLRT Sonuclari</span>
+                    </div>
+                    <div class="card-body" id="blrtBody"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROMPT -->
+        <div class="prompt-card">
+            <div class="prompt-header">
+                <span class="prompt-title">APA Format Prompt Ciktisi</span>
+                <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
+                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>
+                    Kopyala
+                </button>
+            </div>
+            <div class="prompt-body" id="promptOutput"></div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer-nav">
+        <span style="font-size:12px;color:var(--text-3);">Ana uygulamadan veri yukleyerek veya manuel kullanabilirsiniz.</span>
+        <button class="btn btn-primary" onclick="window.close()">
+            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
+            Uygulamaya Don
+        </button>
+    </div>
+</div>
+
+<script>
+// ===== STATE =====
+const state = {
+  models: [],
+  importedData: null,
+  activeGroup: null,
+  groupNames: [],
+};
+
+// ===== DEMO DATA =====
+const demoData = {
+  groups: {
+    'Group 1': [
+      { k:1, aic:8250, bic:8310, abic:8265, entropy:0, blrt_p:1, almr_p:1, ll:-4100, fp:10, caic:8320, proportions:[] },
+      { k:2, aic:7680, bic:7770, abic:7705, entropy:0.85, blrt_p:0.001, almr_p:0.001, ll:-3800, fp:16, caic:7786, proportions:[0.45,0.55] },
+      { k:3, aic:7420, bic:7545, abic:7455, entropy:0.91, blrt_p:0.001, almr_p:0.002, ll:-3660, fp:22, caic:7567, proportions:[0.30,0.35,0.35] },
+      { k:4, aic:7390, bic:7550, abic:7430, entropy:0.88, blrt_p:0.142, almr_p:0.180, ll:-3630, fp:28, caic:7578, proportions:[0.20,0.25,0.30,0.25] },
+    ]
+  },
+  sampleSize: 500,
+  numVars: 5
+};
+
+// ===== INIT =====
+function init() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('from') === 'app') {
+    const raw = localStorage.getItem('lpa_fit_data');
+    if (raw) {
+      try {
+        loadFromApp(JSON.parse(raw));
+        return;
+      } catch (e) {
+        console.warn('Import hatasi:', e);
+      }
+    }
+  }
+  // Demo veri yukle
+  loadFromApp(demoData);
+}
+
+function loadFromApp(payload) {
+  state.importedData = payload;
+  state.groupNames = Object.keys(payload.groups);
+
+  const isFromApp = new URLSearchParams(window.location.search).get('from') === 'app';
+
+  if (isFromApp) {
+    document.getElementById('sourceLabel').textContent = '✓ Uygulamadan Yuklendi';
+    document.getElementById('sourceLabel').className = 'badge badge-success';
+    document.getElementById('refreshBtn').style.display = 'inline-flex';
+  }
+
+  buildGroupTabs();
+  buildCompareSection();
+  switchGroup(state.groupNames[0]);
+}
+
+function refreshFromApp() {
+  const raw = localStorage.getItem('lpa_fit_data');
+  if (raw) {
+    try { loadFromApp(JSON.parse(raw)); } catch(e) { alert('Veri yenilenemedi.'); }
+  }
+}
+
+function buildGroupTabs() {
+  const container = document.getElementById('groupTabs');
+  if (state.groupNames.length <= 1) {
+    container.style.display = 'none';
+    return;
+  }
+  container.style.display = 'flex';
+  container.innerHTML = state.groupNames.map(name =>
+    `<button class="group-tab${name === state.activeGroup ? ' active' : ''}" onclick="switchGroup('${name}')">${name}</button>`
+  ).join('');
+}
+
+function switchGroup(groupName) {
+  state.activeGroup = groupName;
+  document.querySelectorAll('.group-tab').forEach(t => {
+    t.classList.toggle('active', t.textContent === groupName);
+  });
+
+  const groupModels = state.importedData.groups[groupName];
+  if (!groupModels || !groupModels.length) return;
+
+  state.models = groupModels.map(m => ({
+    k: m.k,
+    aic: m.aic,
+    bic: m.bic,
+    abic: m.abic,
+    entropy: m.entropy,
+    blrt_p: m.blrt_p,
+    almr_p: m.almr_p || 1,
+    ll: m.ll || 0,
+    fp: m.fp || 0,
+    caic: m.caic || 0,
+    proportions: m.proportions || []
+  }));
+
+  updateAll();
+}
+
+// ===== ANALYSIS =====
+function findOptimal() {
+  const models = state.models;
+  if (!models.length) return { k:1, idx:0, reasons:[], warnings:[] };
+
+  const bics = models.map(m => m.bic);
+  const aics = models.map(m => m.aic);
+  const abics = models.map(m => m.abic);
+  const minBIC = Math.min(...bics);
+  const minAIC = Math.min(...aics);
+  const minABIC = Math.min(...abics);
+
+  const n = state.importedData?.sampleSize || 500;
+
+  const scores = models.map((m, i) => {
+    let score = 0;
+    const reasons = [];
+    const warnings = [];
+
+    if (m.bic === minBIC) { score += 3; reasons.push('En dusuk BIC'); }
+    if (m.aic === minAIC) { score += 1; reasons.push('En dusuk AIC'); }
+    if (m.abic === minABIC) { score += 2; reasons.push('En dusuk aBIC'); }
+
+    if (m.entropy >= 0.80) { score += 2; reasons.push('Yuksek entropy (>= .80)'); }
+    else if (m.entropy >= 0.60) { score += 1; reasons.push('Kabul edilebilir entropy'); }
+    else if (i > 0) { warnings.push('Dusuk entropy (< .60)'); }
+
+    if (i > 0 && m.blrt_p < 0.05) { score += 2; reasons.push('Anlamli BLRT'); }
+    if (i < models.length - 1 && models[i+1].blrt_p >= 0.05) {
+      score += 2; reasons.push('Sonraki modelin BLRT\'si anlamsiz');
+    }
+
+    // Elbow
+    if (i > 0 && i < models.length - 1) {
+      const dropBefore = models[i-1].bic - m.bic;
+      const dropAfter = m.bic - models[i+1].bic;
+      if (dropBefore > 0 && dropAfter >= 0 && dropBefore > dropAfter * 2) {
+        score += 2; reasons.push('BIC elbow noktasi');
+      }
+    }
+
+    // 1-profil model penalize
+    if (i === 0) { score -= 5; }
+
+    if (n / (i+1) < 50 && i > 0) { score -= 2; warnings.push('Dusuk N/k orani (' + Math.round(n/(i+1)) + ')'); }
+
+    return { k: m.k || (i+1), idx: i, score, reasons, warnings, model: m };
+  });
+
+  scores.sort((a,b) => b.score - a.score);
+  return scores[0];
+}
+
+function findGroupOptimal(groupModels) {
+  if (!groupModels || !groupModels.length) return null;
+  const bics = groupModels.map(m => m.bic);
+  const minBIC = Math.min(...bics);
+  let bestIdx = 0, bestScore = -Infinity;
+  groupModels.forEach((m, i) => {
+    let s = 0;
+    if (m.bic === minBIC) s += 3;
+    if (m.entropy >= 0.80) s += 2;
+    else if (m.entropy >= 0.60) s += 1;
+    if (i > 0 && m.blrt_p < 0.05) s += 2;
+    if (i < groupModels.length-1 && groupModels[i+1].blrt_p >= 0.05) s += 2;
+    if (i === 0) s -= 5;
+    if (s > bestScore) { bestScore = s; bestIdx = i; }
+  });
+  return groupModels[bestIdx];
+}
+
+// ===== RENDER =====
+function updateAll() {
+  renderFitTable();
+  renderEntropy();
+  renderBLRT();
+  renderRecommendation();
+  updatePrompt();
+}
+
+function renderFitTable() {
+  const optimal = findOptimal();
+  const models = state.models;
+  const bics = models.map(m => m.bic);
+  const aics = models.map(m => m.aic);
+  const abics = models.map(m => m.abic);
+  const minBIC = Math.min(...bics);
+  const minAIC = Math.min(...aics);
+  const minABIC = Math.min(...abics);
+
+  let html = `<thead><tr>
+    <th>Model</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>aBIC</th><th>Entropy</th><th>Durum</th>
+  </tr></thead><tbody>`;
+
+  models.forEach((m, i) => {
+    const isOpt = i === optimal.idx;
+    html += `<tr class="${isOpt ? 'optimal-row' : ''}">`;
+    html += `<td class="model-col">${m.k || (i+1)}-Profil</td>`;
+    html += `<td>${m.ll ? m.ll.toLocaleString() : '-'}</td>`;
+    html += `<td>${m.fp || '-'}</td>`;
+    html += `<td>${m.aic === minAIC ? '<span class="best-pill">&#9733; '+m.aic.toLocaleString()+'</span>' : m.aic.toLocaleString()}</td>`;
+    html += `<td>${m.bic === minBIC ? '<span class="best-pill">&#9733; '+m.bic.toLocaleString()+'</span>' : m.bic.toLocaleString()}</td>`;
+    html += `<td>${m.abic === minABIC ? '<span class="best-pill">&#9733; '+m.abic.toLocaleString()+'</span>' : m.abic.toLocaleString()}</td>`;
+
+    const eClass = m.entropy >= 0.80 ? 'best-pill' : m.entropy >= 0.60 ? 'ok-pill' : 'warn-pill';
+    html += `<td>${i === 0 && m.entropy === 0 ? '<span style="color:var(--text-3)">-</span>' : '<span class="'+eClass+'">'+m.entropy.toFixed(3)+'</span>'}</td>`;
+    html += `<td>${isOpt ? '<span class="best-pill">&#9733; Optimal</span>' : ''}</td>`;
+    html += `</tr>`;
+  });
+
+  html += '</tbody>';
+  document.getElementById('fitTable').innerHTML = html;
+  document.getElementById('optimalBadge').textContent = `${optimal.k}-Profil Optimal`;
+  document.getElementById('optimalBadge').className = 'card-badge card-badge-green';
+}
+
+function renderEntropy() {
+  const optimal = findOptimal();
+  const models = state.models;
+  let html = '';
+
+  models.forEach((m, i) => {
+    if (i === 0 && m.entropy === 0) return;
+    const isOpt = i === optimal.idx;
+    const color = m.entropy >= 0.80 ? 'var(--success)' : m.entropy >= 0.60 ? 'var(--warning)' : 'var(--danger)';
+
+    html += `<div class="entropy-row">
+      <span class="entropy-label ${isOpt ? 'is-optimal' : ''}">${m.k || (i+1)}-Profil ${isOpt ? '★' : ''}</span>
+      <div class="entropy-bar-track">
+        <div class="entropy-bar-fill" style="width:${m.entropy*100}%;background:${color};"></div>
+        <div class="entropy-bar-marks">
+          <div class="entropy-mark" style="left:60%;background:var(--border-dark);"></div>
+          <div class="entropy-mark" style="left:80%;background:var(--success);opacity:0.4;"></div>
+        </div>
+      </div>
+      <span class="entropy-value" style="color:${color};">${m.entropy.toFixed(3)}</span>
+    </div>`;
+  });
+
+  const optE = models[optimal.idx]?.entropy || 0;
+  const quality = optE >= 0.80 ? 'Yuksek' : optE >= 0.60 ? 'Kabul Edilebilir' : 'Dusuk';
+  const badgeClass = optE >= 0.80 ? 'card-badge-green' : optE >= 0.60 ? 'card-badge-yellow' : 'card-badge-red';
+
+  document.getElementById('entropyBadge').textContent = quality;
+  document.getElementById('entropyBadge').className = `card-badge ${badgeClass}`;
+  document.getElementById('entropyBody').innerHTML = html;
+}
+
+function renderBLRT() {
+  const models = state.models;
+  let html = '<table class="fit-table"><thead><tr><th>Gecis</th><th>BLRT p</th><th>aLMR p</th><th>Durum</th></tr></thead><tbody>';
+
+  models.forEach((m, i) => {
+    if (i === 0) return;
+    const blrtOk = m.blrt_p < 0.05;
+    const almrOk = m.almr_p < 0.05;
+    const status = blrtOk ? 'best-pill' : 'warn-pill';
+    const statusText = blrtOk ? '✓ Anlamli' : '✗ Anlamsiz';
+
+    html += `<tr>
+      <td class="model-col">${m.k-1 || i} → ${m.k || (i+1)}</td>
+      <td><span class="${status}">${m.blrt_p < 0.001 ? '< .001' : m.blrt_p.toFixed(3)}</span></td>
+      <td><span class="${almrOk ? 'best-pill' : 'warn-pill'}">${m.almr_p < 0.001 ? '< .001' : m.almr_p >= 1 ? '-' : m.almr_p.toFixed(3)}</span></td>
+      <td>${statusText}</td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('blrtBody').innerHTML = html;
+}
+
+function renderRecommendation() {
+  const optimal = findOptimal();
+  const m = optimal.model;
+  if (!m) return;
+
+  let html = `<div class="rec-optimal">★ Onerilen: ${optimal.k}-Profil Cozum</div>`;
+  html += '<ul class="rec-reasons">';
+  optimal.reasons.forEach(r => { html += `<li>${r}</li>`; });
+  optimal.warnings.forEach(w => { html += `<li class="warn">${w}</li>`; });
+
+  // BIC drops
+  const models = state.models;
+  if (models.length >= 3) {
+    let maxDrop = 0, maxDropIdx = 0;
+    for (let i = 1; i < models.length; i++) {
+      const drop = models[i-1].bic - models[i].bic;
+      if (drop > maxDrop) { maxDrop = drop; maxDropIdx = i; }
+    }
+    if (maxDrop > 0) {
+      html += `<li>En buyuk BIC dususu: ${models[maxDropIdx-1].k||maxDropIdx}→${models[maxDropIdx].k||(maxDropIdx+1)} profil (&#916; = ${Math.round(maxDrop)})</li>`;
+    }
+  }
+
+  html += '</ul>';
+  document.getElementById('recBox').innerHTML = html;
+}
+
+function buildCompareSection() {
+  if (state.groupNames.length <= 1) {
+    document.getElementById('compareSection').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('compareSection').style.display = 'block';
+  let html = '';
+
+  state.groupNames.forEach(gn => {
+    const gModels = state.importedData.groups[gn];
+    const best = findGroupOptimal(gModels);
+    if (!best) return;
+
+    html += `<div class="compare-card ${gn === state.activeGroup ? 'highlight' : ''}" onclick="switchGroup('${gn}')" style="cursor:pointer;">
+      <div class="compare-group">${gn}</div>
+      <div class="compare-k">${best.k}<span>-Profil</span></div>
+      <div class="compare-stats">
+        BIC: ${best.bic.toLocaleString()}<br>
+        Entropy: ${best.entropy.toFixed(3)}<br>
+        BLRT p: ${best.blrt_p < 0.001 ? '< .001' : best.blrt_p.toFixed(3)}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('compareGrid').innerHTML = html;
+}
+
+// ===== PROMPT =====
+function updatePrompt() {
+  const optimal = findOptimal();
+  const m = optimal.model;
+  if (!m) return;
+
+  const n = state.importedData?.sampleSize || 500;
+  const nVars = state.importedData?.numVars || 5;
+  const models = state.models;
+  const hasGroups = state.groupNames.length > 1;
+  const groupLabel = state.activeGroup || '';
+
+  let p = '';
+  p += `Asagidaki bilgileri kullanarak APA 7 formatinda Latent Profil Analizi (LPA) sonuclarini raporla:\n\n`;
+
+  if (hasGroups) {
+    p += `Bu sonuclar cok-gruplu (multi-group) LPA'nin class enumeration asamasina aittir.\n`;
+    p += `Aktif grup: ${groupLabel}\n\n`;
+  }
+
+  p += `Orneklem: N = ${n}, ${nVars} surekli gosterge degiskeni ile ${models.length} alternatif model (1-profil ile ${models.length}-profil) karsilastirilmistir.\n\n`;
+
+  p += `Model Karsilastirma Tablosu:\n`;
+  p += `| Model | AIC | BIC | aBIC | Entropy | BLRT p | aLMR p |\n`;
+  p += `|-------|-----|-----|------|---------|--------|--------|\n`;
+
+  models.forEach((mod, i) => {
+    p += `| ${mod.k || (i+1)}-profil | ${mod.aic.toLocaleString()} | ${mod.bic.toLocaleString()} | ${mod.abic.toLocaleString()} | ${i === 0 && mod.entropy === 0 ? '-' : mod.entropy.toFixed(3)} | ${i === 0 ? '-' : mod.blrt_p < 0.001 ? '< .001' : mod.blrt_p.toFixed(3)} | ${i === 0 ? '-' : mod.almr_p >= 1 ? '-' : mod.almr_p < 0.001 ? '< .001' : mod.almr_p.toFixed(3)} |\n`;
+  });
+
+  p += `\nOptimal model: ${optimal.k}-profil cozum\n`;
+  p += `Gerekceler: ${optimal.reasons.join('; ')}\n`;
+
+  // Proportions
+  if (m.proportions && m.proportions.length > 0) {
+    p += `Sinif oranlari: ${m.proportions.map((pr, i) => `Profil ${i+1} = %${typeof pr === 'number' && pr < 1 ? Math.round(pr*100) : pr}`).join(', ')}\n`;
+  }
+
+  p += `\nLutfen bu bilgileri APA 7 formatinda, akademik bir dilde, Turkce olarak yaz. Fit indekslerinin yorumlarini, entropy degerlendirmesini, BLRT sonuclarini dahil et. Optimal profil sayisi kararinin gerekcesini acikla.`;
+
+  // Multi-group comparison
+  if (hasGroups && state.importedData) {
+    p += `\n\n--- TUM GRUPLAR KARSILASTIRMASI ---\n`;
+    state.groupNames.forEach(gn => {
+      const gModels = state.importedData.groups[gn];
+      const best = findGroupOptimal(gModels);
+      if (!best) return;
+      p += `${gn}: Optimal = ${best.k}-profil (BIC=${best.bic.toLocaleString()}, Entropy=${best.entropy.toFixed(3)}, BLRT p=${best.blrt_p < 0.001 ? '< .001' : best.blrt_p.toFixed(3)})\n`;
+    });
+    p += `\nHer iki grubun optimal profil sayilarini karsilastir. Eger ayniysa bunu multi-group LPA'nin bir sonraki adimi (configural similarity) icin guclu bir temel olarak yorumla. Farkliysa olasi nedenleri ve implikasyonlari tartis.`;
+  }
+
+  document.getElementById('promptOutput').textContent = p;
+}
+
+function copyPrompt() {
+  const text = document.getElementById('promptOutput').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg> Kopyalandi!';
+    btn.style.background = 'var(--success)';
+    setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 1500);
+  });
+}
+
+// GO
+init();
+</script>
+</body>
+</html>
