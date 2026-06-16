@@ -591,6 +591,27 @@
         font-weight: 600;
     }
 
+    /* Pin the Actions column in the results table so its buttons stay visible
+       even when the table is wider than the screen and scrolls horizontally.
+       Scoped to #resultsContainer so no other table is affected. */
+    #resultsContainer table th:last-child,
+    #resultsContainer table td:last-child {
+        position: sticky;
+        right: 0;
+    }
+    #resultsContainer table td:last-child {
+        background: var(--surface-raised);
+        box-shadow: -8px 0 8px -6px rgba(0,0,0,0.12);
+        z-index: 1;
+    }
+    #resultsContainer table th:last-child {
+        box-shadow: -8px 0 8px -6px rgba(0,0,0,0.12);
+        z-index: 2;
+    }
+    #resultsContainer table tr:hover td:last-child {
+        background: var(--bg);
+    }
+
     /* EMPTY STATE */
     .empty-state {
         text-align: center;
