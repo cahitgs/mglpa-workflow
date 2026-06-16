@@ -93,8 +93,10 @@
         bic: parseFloat(m.bic) || 0,
         abic: parseFloat(m.sabic) || 0,
         entropy: parseFloat(m.entropy) || 0,
-        blrt_p: parseFloat(m.blrt_p) || 1,
-        almr_p: parseFloat(m.almr_p) || 1,
+        // Keep the real value from the enumeration table; use null (not a
+        // misleading 1.0) when the test is absent/"N/A" in the Mplus output.
+        blrt_p: (m.blrt_p != null && !isNaN(parseFloat(m.blrt_p))) ? parseFloat(m.blrt_p) : null,
+        almr_p: (m.almr_p != null && !isNaN(parseFloat(m.almr_p))) ? parseFloat(m.almr_p) : null,
         ll: parseFloat(m.ll) || 0,
         fp: parseInt(m.fp) || 0,
         caic: parseFloat(m.caic) || 0,

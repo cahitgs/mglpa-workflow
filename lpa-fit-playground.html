@@ -746,8 +746,8 @@ function switchGroup(groupName) {
     bic: m.bic,
     abic: m.abic,
     entropy: m.entropy,
-    blrt_p: m.blrt_p,
-    almr_p: m.almr_p || 1,
+    blrt_p: (m.blrt_p == null ? null : m.blrt_p),
+    almr_p: (m.almr_p == null ? null : m.almr_p),
     ll: m.ll || 0,
     fp: m.fp || 0,
     caic: m.caic || 0,
@@ -787,9 +787,9 @@ function findOptimal() {
     else if (m.entropy >= 0.60) { score += 1; reasons.push('Acceptable entropy'); }
     else if (i > 0) { warnings.push('Low entropy (< .60)'); }
 
-    if (i > 0 && m.blrt_p < 0.05) { score += 2; reasons.push('Significant BLRT'); }
-    if (i > 0 && (m.almr_p || 1) < 0.05) { score += 1; reasons.push('Significant aLMR'); }
-    if (i < models.length - 1 && models[i+1].blrt_p >= 0.05) {
+    if (i > 0 && m.blrt_p != null && m.blrt_p < 0.05) { score += 2; reasons.push('Significant BLRT'); }
+    if (i > 0 && m.almr_p != null && m.almr_p < 0.05) { score += 1; reasons.push('Significant aLMR'); }
+    if (i < models.length - 1 && models[i+1].blrt_p != null && models[i+1].blrt_p >= 0.05) {
       score += 2; reasons.push('Next model\'s BLRT is non-significant');
     }
 
@@ -827,9 +827,9 @@ function findGroupOptimal(groupModels) {
     if (minCAIC !== null && m.caic === minCAIC) s += 2;
     if (m.entropy >= 0.80) s += 2;
     else if (m.entropy >= 0.60) s += 1;
-    if (i > 0 && m.blrt_p < 0.05) s += 2;
-    if (i > 0 && (m.almr_p || 1) < 0.05) s += 1;
-    if (i < groupModels.length-1 && groupModels[i+1].blrt_p >= 0.05) s += 2;
+    if (i > 0 && m.blrt_p != null && m.blrt_p < 0.05) s += 2;
+    if (i > 0 && m.almr_p != null && m.almr_p < 0.05) s += 1;
+    if (i < groupModels.length-1 && groupModels[i+1].blrt_p != null && groupModels[i+1].blrt_p >= 0.05) s += 2;
     if (i === 0) s -= 5;
     if (s > bestScore) { bestScore = s; bestIdx = i; }
   });
@@ -935,17 +935,22 @@ function renderBLRT() {
   const models = state.models;
   let html = '<table class="fit-table"><thead><tr><th>Transition</th><th>BLRT p</th><th>aLMR p</th><th>Status</th></tr></thead><tbody>';
 
+  const na = '<span style="color:var(--text-3)">n/a</span>';
+
   models.forEach((m, i) => {
     if (i === 0) return;
-    const blrtOk = m.blrt_p < 0.05;
-    const almrOk = m.almr_p < 0.05;
-    const status = blrtOk ? 'best-pill' : 'warn-pill';
-    const statusText = blrtOk ? '✓ Significant' : '✗ Non-significant';
+    const hasBlrt = m.blrt_p != null;
+    const hasAlmr = m.almr_p != null;
+    const blrtOk = hasBlrt && m.blrt_p < 0.05;
+    const almrOk = hasAlmr && m.almr_p < 0.05;
+    const statusText = !hasBlrt ? na : (blrtOk ? '✓ Significant' : '✗ Non-significant');
+    const blrtCell = !hasBlrt ? na : `<span class="${blrtOk ? 'best-pill' : 'warn-pill'}">${m.blrt_p < 0.001 ? '< .001' : m.blrt_p.toFixed(3)}</span>`;
+    const almrCell = !hasAlmr ? na : `<span class="${almrOk ? 'best-pill' : 'warn-pill'}">${m.almr_p < 0.001 ? '< .001' : m.almr_p.toFixed(3)}</span>`;
 
     html += `<tr>
       <td class="model-col">${m.k-1 || i} → ${m.k || (i+1)}</td>
-      <td><span class="${status}">${m.blrt_p < 0.001 ? '< .001' : m.blrt_p.toFixed(3)}</span></td>
-      <td><span class="${almrOk ? 'best-pill' : 'warn-pill'}">${m.almr_p < 0.001 ? '< .001' : m.almr_p >= 1 ? '-' : m.almr_p.toFixed(3)}</span></td>
+      <td>${blrtCell}</td>
+      <td>${almrCell}</td>
       <td>${statusText}</td>
     </tr>`;
   });
@@ -1001,7 +1006,7 @@ function buildCompareSection() {
       <div class="compare-stats">
         BIC: ${fmt(best.bic)}<br>
         Entropy: ${best.entropy.toFixed(3)}<br>
-        BLRT p: ${best.blrt_p < 0.001 ? '< .001' : best.blrt_p.toFixed(3)}
+        BLRT p: ${best.blrt_p == null ? 'n/a' : best.blrt_p < 0.001 ? '< .001' : best.blrt_p.toFixed(3)}
       </div>
     </div>`;
   });
@@ -1033,7 +1038,9 @@ function updatePrompt() {
 
   p += `Optimal model (statistical): ${optimal.k}-profile solution\n`;
   const om = models[optimal.idx];
-  p += `Selected model fit: AIC = ${fmt(om.aic)}, BIC = ${fmt(om.bic)}, aBIC = ${fmt(om.abic)}${om.caic ? ', CAIC = ' + fmt(om.caic) : ''}, entropy = ${om.entropy.toFixed(3)}, BLRT p = ${optimal.idx === 0 ? '-' : om.blrt_p < 0.001 ? '< .001' : om.blrt_p.toFixed(3)}, aLMR p = ${optimal.idx === 0 || om.almr_p >= 1 ? '-' : om.almr_p < 0.001 ? '< .001' : om.almr_p.toFixed(3)}\n`;
+  const omBlrt = (optimal.idx === 0 || om.blrt_p == null) ? 'n/a' : (om.blrt_p < 0.001 ? '< .001' : om.blrt_p.toFixed(3));
+  const omAlmr = (optimal.idx === 0 || om.almr_p == null) ? 'n/a' : (om.almr_p < 0.001 ? '< .001' : om.almr_p.toFixed(3));
+  p += `Selected model fit: AIC = ${fmt(om.aic)}, BIC = ${fmt(om.bic)}, aBIC = ${fmt(om.abic)}${om.caic ? ', CAIC = ' + fmt(om.caic) : ''}, entropy = ${om.entropy.toFixed(3)}, BLRT p = ${omBlrt}, aLMR p = ${omAlmr}\n`;
   p += `Statistical justification: ${optimal.reasons.join('; ')}\n`;
   if (optimal.warnings && optimal.warnings.length) {
     p += `Cautions: ${optimal.warnings.join('; ')}\n`;
@@ -1050,7 +1057,12 @@ function updatePrompt() {
   if (oi < models.length - 1) {
     const next = models[oi + 1];
     const bicChange = Math.round(next.bic - optM.bic);
-    p += `- Adding one more profile (the ${(next.k || (oi + 2))}-profile model) changes the BIC by ${(bicChange >= 0 ? '+' : '') + fmtInt(bicChange)} and yields a ${next.blrt_p >= 0.05 ? 'non-significant' : 'significant'} BLRT (p = ${next.blrt_p < 0.001 ? '< .001' : next.blrt_p.toFixed(3)}), so the extra profile is ${next.blrt_p >= 0.05 ? 'not statistically justified' : 'statistically supported but must still be weighed against parsimony and interpretability'}.\n`;
+    const bicChangeTxt = (bicChange >= 0 ? '+' : '') + fmtInt(bicChange);
+    if (next.blrt_p == null) {
+      p += `- Adding one more profile (the ${(next.k || (oi + 2))}-profile model) changes the BIC by ${bicChangeTxt}; its BLRT/aLMR is not available, so the extra profile is judged on the information criteria and interpretability.\n`;
+    } else {
+      p += `- Adding one more profile (the ${(next.k || (oi + 2))}-profile model) changes the BIC by ${bicChangeTxt} and yields a ${next.blrt_p >= 0.05 ? 'non-significant' : 'significant'} BLRT (p = ${next.blrt_p < 0.001 ? '< .001' : next.blrt_p.toFixed(3)}), so the extra profile is ${next.blrt_p >= 0.05 ? 'not statistically justified' : 'statistically supported but must still be weighed against parsimony and interpretability'}.\n`;
+    }
   }
   p += `- Overall, across the information criteria (AIC/BIC/aBIC/CAIC), the entropy, and the likelihood-ratio tests (BLRT and aLMR), the ${optimal.k}-profile solution offers the best balance of fit and parsimony among the compared models.\n`;
 
@@ -1071,7 +1083,7 @@ function updatePrompt() {
       const gModels = state.importedData.groups[gn];
       const best = findGroupOptimal(gModels);
       if (!best) return;
-      p += `${gn}: Optimal = ${best.k}-profile (BIC = ${fmt(best.bic)}${best.caic ? ', CAIC = ' + fmt(best.caic) : ''}, Entropy = ${best.entropy.toFixed(3)}, BLRT p = ${best.blrt_p < 0.001 ? '< .001' : best.blrt_p.toFixed(3)})\n`;
+      p += `${gn}: Optimal = ${best.k}-profile (BIC = ${fmt(best.bic)}${best.caic ? ', CAIC = ' + fmt(best.caic) : ''}, Entropy = ${best.entropy.toFixed(3)}, BLRT p = ${best.blrt_p == null ? 'n/a' : best.blrt_p < 0.001 ? '< .001' : best.blrt_p.toFixed(3)})\n`;
     });
     p += `\nComparison result across groups: Compare the optimal number of profiles across the groups. If they are the same, interpret this as a strong basis for the next step of the multi-group LPA (configural similarity). If they differ, discuss the possible reasons and implications. This cross-group comparison, too, must be interpreted theoretically/conceptually and not solely on the basis of the fit indices.`;
   }
