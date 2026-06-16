@@ -634,7 +634,7 @@ body {
         <!-- PROMPT -->
         <div class="prompt-card">
             <div class="prompt-header">
-                <span class="prompt-title">APA-Format Prompt Output</span>
+                <span class="prompt-title">Recommended Decision</span>
                 <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>
                     Copy
@@ -765,9 +765,11 @@ function findOptimal() {
   const bics = models.map(m => m.bic);
   const aics = models.map(m => m.aic);
   const abics = models.map(m => m.abic);
+  const validCaics = models.map(m => m.caic || 0).filter(c => c > 0);
   const minBIC = Math.min(...bics);
   const minAIC = Math.min(...aics);
   const minABIC = Math.min(...abics);
+  const minCAIC = validCaics.length ? Math.min(...validCaics) : null;
 
   const n = state.importedData?.sampleSize || 500;
 
@@ -779,12 +781,14 @@ function findOptimal() {
     if (m.bic === minBIC) { score += 3; reasons.push('Lowest BIC'); }
     if (m.aic === minAIC) { score += 1; reasons.push('Lowest AIC'); }
     if (m.abic === minABIC) { score += 2; reasons.push('Lowest aBIC'); }
+    if (minCAIC !== null && m.caic === minCAIC) { score += 2; reasons.push('Lowest CAIC'); }
 
     if (m.entropy >= 0.80) { score += 2; reasons.push('High entropy (>= .80)'); }
     else if (m.entropy >= 0.60) { score += 1; reasons.push('Acceptable entropy'); }
     else if (i > 0) { warnings.push('Low entropy (< .60)'); }
 
     if (i > 0 && m.blrt_p < 0.05) { score += 2; reasons.push('Significant BLRT'); }
+    if (i > 0 && (m.almr_p || 1) < 0.05) { score += 1; reasons.push('Significant aLMR'); }
     if (i < models.length - 1 && models[i+1].blrt_p >= 0.05) {
       score += 2; reasons.push('Next model\'s BLRT is non-significant');
     }
@@ -814,13 +818,17 @@ function findGroupOptimal(groupModels) {
   if (!groupModels || !groupModels.length) return null;
   const bics = groupModels.map(m => m.bic);
   const minBIC = Math.min(...bics);
+  const validCaics = groupModels.map(m => m.caic || 0).filter(c => c > 0);
+  const minCAIC = validCaics.length ? Math.min(...validCaics) : null;
   let bestIdx = 0, bestScore = -Infinity;
   groupModels.forEach((m, i) => {
     let s = 0;
     if (m.bic === minBIC) s += 3;
+    if (minCAIC !== null && m.caic === minCAIC) s += 2;
     if (m.entropy >= 0.80) s += 2;
     else if (m.entropy >= 0.60) s += 1;
     if (i > 0 && m.blrt_p < 0.05) s += 2;
+    if (i > 0 && (m.almr_p || 1) < 0.05) s += 1;
     if (i < groupModels.length-1 && groupModels[i+1].blrt_p >= 0.05) s += 2;
     if (i === 0) s -= 5;
     if (s > bestScore) { bestScore = s; bestIdx = i; }
@@ -858,12 +866,14 @@ function renderFitTable() {
   const bics = models.map(m => m.bic);
   const aics = models.map(m => m.aic);
   const abics = models.map(m => m.abic);
+  const validCaics = models.map(m => m.caic || 0).filter(c => c > 0);
   const minBIC = Math.min(...bics);
   const minAIC = Math.min(...aics);
   const minABIC = Math.min(...abics);
+  const minCAIC = validCaics.length ? Math.min(...validCaics) : null;
 
   let html = `<thead><tr>
-    <th>Model</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>aBIC</th><th>Entropy</th><th>Status</th>
+    <th>Model</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>aBIC</th><th>CAIC</th><th>Entropy</th><th>Status</th>
   </tr></thead><tbody>`;
 
   models.forEach((m, i) => {
@@ -875,6 +885,7 @@ function renderFitTable() {
     html += `<td>${m.aic === minAIC ? '<span class="best-pill">&#9733; '+fmt(m.aic)+'</span>' : fmt(m.aic)}</td>`;
     html += `<td>${m.bic === minBIC ? '<span class="best-pill">&#9733; '+fmt(m.bic)+'</span>' : fmt(m.bic)}</td>`;
     html += `<td>${m.abic === minABIC ? '<span class="best-pill">&#9733; '+fmt(m.abic)+'</span>' : fmt(m.abic)}</td>`;
+    html += `<td>${minCAIC !== null && m.caic === minCAIC ? '<span class="best-pill">&#9733; '+fmt(m.caic)+'</span>' : (m.caic ? fmt(m.caic) : '-')}</td>`;
 
     const eClass = m.entropy >= 0.80 ? 'best-pill' : m.entropy >= 0.60 ? 'ok-pill' : 'warn-pill';
     html += `<td>${i === 0 && m.entropy === 0 ? '<span style="color:var(--text-3)">-</span>' : '<span class="'+eClass+'">'+m.entropy.toFixed(3)+'</span>'}</td>`;
@@ -1020,15 +1031,9 @@ function updatePrompt() {
 
   p += `Sample: N = ${n}; ${models.length} alternative models (from the 1-profile to the ${models.length}-profile solution) were compared using ${nVars} continuous indicator variables.\n\n`;
 
-  p += `Model Comparison Table:\n`;
-  p += `| Model | AIC | BIC | aBIC | Entropy | BLRT p | aLMR p |\n`;
-  p += `|-------|-----|-----|------|---------|--------|--------|\n`;
-
-  models.forEach((mod, i) => {
-    p += `| ${mod.k || (i+1)}-profile | ${fmt(mod.aic)} | ${fmt(mod.bic)} | ${fmt(mod.abic)} | ${i === 0 && mod.entropy === 0 ? '-' : mod.entropy.toFixed(3)} | ${i === 0 ? '-' : mod.blrt_p < 0.001 ? '< .001' : mod.blrt_p.toFixed(3)} | ${i === 0 ? '-' : mod.almr_p >= 1 ? '-' : mod.almr_p < 0.001 ? '< .001' : mod.almr_p.toFixed(3)} |\n`;
-  });
-
-  p += `\nOptimal model (statistical): ${optimal.k}-profile solution\n`;
+  p += `Optimal model (statistical): ${optimal.k}-profile solution\n`;
+  const om = models[optimal.idx];
+  p += `Selected model fit: AIC = ${fmt(om.aic)}, BIC = ${fmt(om.bic)}, aBIC = ${fmt(om.abic)}${om.caic ? ', CAIC = ' + fmt(om.caic) : ''}, entropy = ${om.entropy.toFixed(3)}, BLRT p = ${optimal.idx === 0 ? '-' : om.blrt_p < 0.001 ? '< .001' : om.blrt_p.toFixed(3)}, aLMR p = ${optimal.idx === 0 || om.almr_p >= 1 ? '-' : om.almr_p < 0.001 ? '< .001' : om.almr_p.toFixed(3)}\n`;
   p += `Statistical justification: ${optimal.reasons.join('; ')}\n`;
   if (optimal.warnings && optimal.warnings.length) {
     p += `Cautions: ${optimal.warnings.join('; ')}\n`;
@@ -1047,14 +1052,14 @@ function updatePrompt() {
     const bicChange = Math.round(next.bic - optM.bic);
     p += `- Adding one more profile (the ${(next.k || (oi + 2))}-profile model) changes the BIC by ${(bicChange >= 0 ? '+' : '') + fmtInt(bicChange)} and yields a ${next.blrt_p >= 0.05 ? 'non-significant' : 'significant'} BLRT (p = ${next.blrt_p < 0.001 ? '< .001' : next.blrt_p.toFixed(3)}), so the extra profile is ${next.blrt_p >= 0.05 ? 'not statistically justified' : 'statistically supported but must still be weighed against parsimony and interpretability'}.\n`;
   }
-  p += `- Overall, across the information criteria (AIC/BIC/aBIC), the entropy, and the likelihood-ratio tests, the ${optimal.k}-profile solution offers the best balance of fit and parsimony among the compared models.\n`;
+  p += `- Overall, across the information criteria (AIC/BIC/aBIC/CAIC), the entropy, and the likelihood-ratio tests (BLRT and aLMR), the ${optimal.k}-profile solution offers the best balance of fit and parsimony among the compared models.\n`;
 
   // Proportions
   if (m.proportions && m.proportions.length > 0) {
     p += `\nClass proportions: ${m.proportions.map((pr, i) => `Profile ${i+1} = ${typeof pr === 'number' && pr < 1 ? Math.round(pr*100) + '%' : pr}`).join(', ')}\n`;
   }
 
-  p += `\nPlease write this up in APA 7th edition format, in an academic register, in English. Include the interpretation of the fit indices, the entropy assessment, and the BLRT results, and explain the rationale for the selected number of profiles.\n`;
+  p += `\nPlease write this up in APA 7th edition format, in an academic register, in English. Include the interpretation of the fit indices (AIC, BIC, aBIC, CAIC), the entropy assessment, and the likelihood-ratio tests (BLRT and aLMR), and explain the rationale for the selected number of profiles.\n`;
 
   // --- Theoretical / conceptual interpretation requirement ---
   p += `\nIMPORTANT - theoretical/conceptual interpretation: The number of profiles must NOT be decided on the statistical fit indices alone. These indices are only a starting point; the final solution must also be evaluated and justified on theoretical/conceptual grounds - that is, the substantive meaning, interpretability and distinctiveness of the profiles, their consistency with theory and prior literature, parsimony, and practical usefulness. Please state explicitly that the selected ${optimal.k}-profile solution still requires this theoretical/conceptual interpretation and justification beyond the statistical evidence, and frame the conclusion accordingly.`;
@@ -1066,7 +1071,7 @@ function updatePrompt() {
       const gModels = state.importedData.groups[gn];
       const best = findGroupOptimal(gModels);
       if (!best) return;
-      p += `${gn}: Optimal = ${best.k}-profile (BIC = ${fmt(best.bic)}, Entropy = ${best.entropy.toFixed(3)}, BLRT p = ${best.blrt_p < 0.001 ? '< .001' : best.blrt_p.toFixed(3)})\n`;
+      p += `${gn}: Optimal = ${best.k}-profile (BIC = ${fmt(best.bic)}${best.caic ? ', CAIC = ' + fmt(best.caic) : ''}, Entropy = ${best.entropy.toFixed(3)}, BLRT p = ${best.blrt_p < 0.001 ? '< .001' : best.blrt_p.toFixed(3)})\n`;
     });
     p += `\nComparison result across groups: Compare the optimal number of profiles across the groups. If they are the same, interpret this as a strong basis for the next step of the multi-group LPA (configural similarity). If they differ, discuss the possible reasons and implications. This cross-group comparison, too, must be interpreted theoretically/conceptually and not solely on the basis of the fit indices.`;
   }
