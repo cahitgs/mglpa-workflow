@@ -1,27 +1,27 @@
 /**
  * LPA Fit Index Playground Bridge
  *
- * Bu dosyayı index.html'in en altına ekleyin:
+ * Add this file at the very bottom of index.html:
  * <script src="lpa-fit-bridge.js"></script>
  *
- * Step 0'daki Elbow Plot butonunun yanına "Fit Interpreter" butonu ekler.
- * Tıklanınca workflowData.results.enumeration verilerini localStorage'a yazar
- * ve lpa-fit-playground.html'i yeni sekmede açar.
+ * Adds a "Fit Interpreter" button next to the Elbow Plot button on Step 0.
+ * When clicked, it writes the workflowData.results.enumeration data to
+ * localStorage and opens lpa-fit-playground.html in a new tab.
  */
 
 (function () {
   'use strict';
 
-  // Butonu ekle — DOM hazır olduğunda
+  // Inject the button once the DOM is ready
   function injectButton() {
     const elbowBtn = document.getElementById('elbowPlotBtn');
     if (!elbowBtn) {
-      // DOM henüz hazır değilse tekrar dene
+      // DOM not ready yet -> retry
       setTimeout(injectButton, 500);
       return;
     }
 
-    // Zaten eklenmişse tekrar ekleme
+    // Skip if it has already been added
     if (document.getElementById('fitPlaygroundBtn')) return;
 
     const btn = document.createElement('button');
@@ -34,26 +34,26 @@
       </svg>
       Fit Interpreter
     `;
-    btn.title = 'Fit indekslerini interaktif playground\'da analiz et';
+    btn.title = 'Analyze the fit indices in an interactive playground';
     btn.onclick = launchFitPlayground;
 
     elbowBtn.parentElement.appendChild(btn);
   }
 
   function launchFitPlayground() {
-    // workflowData erişimi kontrol
+    // Check access to workflowData
     if (typeof workflowData === 'undefined' || !workflowData.results || !workflowData.results.enumeration) {
-      alert('Henüz enumeration verisi yok. Önce Mplus çıktılarını yükleyin.');
+      alert('No enumeration data yet. Please load the Mplus outputs first.');
       return;
     }
 
     const enumData = workflowData.results.enumeration;
     if (enumData.length === 0) {
-      alert('Enumeration sonuçları boş. Önce Step 0\'da Mplus .out dosyalarını analiz edin.');
+      alert('Enumeration results are empty. Please analyze the Mplus .out files in Step 0 first.');
       return;
     }
 
-    // Grupları ayır
+    // Split into groups
     const groups = {};
     enumData.forEach(item => {
       const groupMatch = item.model.match(/Group\s*(\d+)/i);
@@ -62,7 +62,7 @@
       groups[groupName].push(item);
     });
 
-    // Her grup için fit verilerini hazırla
+    // Prepare the fit data for each group
     const payload = {
       timestamp: Date.now(),
       groups: {},
@@ -70,11 +70,11 @@
       numVars: null
     };
 
-    // Örneklem ve değişken sayısını bulmaya çalış
+    // Try to find the sample size and the number of variables
     const sampleInput = document.getElementById('sampleSize');
     if (sampleInput) payload.sampleSize = parseInt(sampleInput.value) || null;
 
-    // Değişken sayısını indicators'dan çıkar
+    // Derive the number of variables from the indicators field
     const indicatorsInput = document.getElementById('indicators');
     if (indicatorsInput && indicatorsInput.value) {
       const vars = indicatorsInput.value.trim().split(/\s+/);
@@ -83,7 +83,7 @@
 
     Object.keys(groups).forEach(groupName => {
       const models = groups[groupName];
-      // k'ya göre sırala
+      // Sort by k
       models.sort((a, b) => parseInt(a.k) - parseInt(b.k));
 
       payload.groups[groupName] = models.map(m => ({
@@ -102,31 +102,30 @@
       }));
     });
 
-    // localStorage'a yaz
+    // Write to localStorage
     localStorage.setItem('lpa_fit_data', JSON.stringify(payload));
 
-    // Playground'u aç
+    // Open the playground
     const playgroundUrl = new URL('lpa-fit-playground.html', window.location.href);
     playgroundUrl.searchParams.set('from', 'app');
     playgroundUrl.searchParams.set('t', Date.now());
     window.open(playgroundUrl.toString(), '_blank');
   }
 
-  // Buton görünürlüğünü Step 0'da kontrol et
+  // Control the button visibility on Step 0.
+  // The button stays visible throughout Step 0 (the main Class-Enumeration page),
+  // whether or not enumeration data has been loaded yet; if it is clicked before
+  // any data exists, launchFitPlayground() shows an explanatory alert.
   function updateButtonVisibility() {
     const btn = document.getElementById('fitPlaygroundBtn');
     if (!btn) return;
 
     const isStep0 = typeof currentStep !== 'undefined' && currentStep === 0;
-    const hasData = typeof workflowData !== 'undefined' &&
-      workflowData.results &&
-      workflowData.results.enumeration &&
-      workflowData.results.enumeration.length > 0;
 
-    btn.style.display = (isStep0 && hasData) ? 'inline-flex' : 'none';
+    btn.style.display = isStep0 ? 'inline-flex' : 'none';
   }
 
-  // goToStep override ile görünürlük takibi
+  // Track visibility by overriding goToStep
   function hookStepChanges() {
     if (typeof goToStep === 'undefined') {
       setTimeout(hookStepChanges, 500);
@@ -158,7 +157,7 @@
     }
   }
 
-  // Başlat
+  // Start
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       injectButton();

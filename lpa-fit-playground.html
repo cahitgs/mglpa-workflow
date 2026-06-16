@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -430,8 +430,9 @@ body {
     color: rgba(247,244,238,0.6);
     line-height: 1.7;
     white-space: pre-wrap;
-    max-height: 220px;
-    overflow-y: auto;
+    /* No height cap: show the full prompt without truncation/scroll. */
+    max-height: none;
+    overflow-y: visible;
 }
 
 .prompt-body::-webkit-scrollbar { width: 4px; }
@@ -557,14 +558,14 @@ body {
     <div class="header">
         <div class="header-left">
             <h1>LPA Fit Index Interpreter</h1>
-            <p>Optimal profil sayisi karar araci</p>
+            <p>Decision aid for the optimal number of profiles</p>
         </div>
         <div class="header-right">
             <div class="group-tabs" id="groupTabs" style="display:none;"></div>
             <span class="badge" id="sourceLabel">Playground</span>
             <button class="btn-secondary btn" onclick="refreshFromApp()" id="refreshBtn" style="display:none;">
                 <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg>
-                Yenile
+                Refresh
             </button>
         </div>
     </div>
@@ -576,7 +577,7 @@ body {
         <div id="compareSection" style="display:none;">
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">Grup Karsilastirmasi</span>
+                    <span class="card-title">Group Comparison</span>
                 </div>
                 <div class="card-body">
                     <div class="compare-grid" id="compareGrid"></div>
@@ -589,7 +590,7 @@ body {
             <div>
                 <div class="card">
                     <div class="card-header">
-                        <span class="card-title">Fit Indeksleri</span>
+                        <span class="card-title">Fit Indices</span>
                         <span class="card-badge card-badge-green" id="optimalBadge">-</span>
                     </div>
                     <div class="card-body" style="padding:0;">
@@ -602,7 +603,7 @@ body {
                 <!-- Recommendation -->
                 <div class="card">
                     <div class="card-header">
-                        <span class="card-title">Oneri</span>
+                        <span class="card-title">Recommendation</span>
                     </div>
                     <div class="card-body">
                         <div class="rec-box" id="recBox"></div>
@@ -614,7 +615,7 @@ body {
             <div>
                 <div class="card">
                     <div class="card-header">
-                        <span class="card-title">Entropy Degerlendirmesi</span>
+                        <span class="card-title">Entropy Assessment</span>
                         <span class="card-badge" id="entropyBadge">-</span>
                     </div>
                     <div class="card-body" id="entropyBody"></div>
@@ -623,7 +624,7 @@ body {
                 <!-- BLRT Summary -->
                 <div class="card" id="blrtCard">
                     <div class="card-header">
-                        <span class="card-title">BLRT Sonuclari</span>
+                        <span class="card-title">BLRT Results</span>
                     </div>
                     <div class="card-body" id="blrtBody"></div>
                 </div>
@@ -633,10 +634,10 @@ body {
         <!-- PROMPT -->
         <div class="prompt-card">
             <div class="prompt-header">
-                <span class="prompt-title">APA Format Prompt Ciktisi</span>
+                <span class="prompt-title">APA-Format Prompt Output</span>
                 <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">
                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>
-                    Kopyala
+                    Copy
                 </button>
             </div>
             <div class="prompt-body" id="promptOutput"></div>
@@ -645,10 +646,10 @@ body {
 
     <!-- FOOTER -->
     <div class="footer-nav">
-        <span style="font-size:12px;color:var(--text-3);">Ana uygulamadan veri yukleyerek veya manuel kullanabilirsiniz.</span>
+        <span style="font-size:12px;color:var(--text-3);">Use data loaded from the main app, or enter it manually.</span>
         <button class="btn btn-primary" onclick="window.close()">
             <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg>
-            Uygulamaya Don
+            Back to App
         </button>
     </div>
 </div>
@@ -686,11 +687,11 @@ function init() {
         loadFromApp(JSON.parse(raw));
         return;
       } catch (e) {
-        console.warn('Import hatasi:', e);
+        console.warn('Import error:', e);
       }
     }
   }
-  // Demo veri yukle
+  // Load demo data
   loadFromApp(demoData);
 }
 
@@ -701,7 +702,7 @@ function loadFromApp(payload) {
   const isFromApp = new URLSearchParams(window.location.search).get('from') === 'app';
 
   if (isFromApp) {
-    document.getElementById('sourceLabel').textContent = '✓ Uygulamadan Yuklendi';
+    document.getElementById('sourceLabel').textContent = '✓ Loaded from App';
     document.getElementById('sourceLabel').className = 'badge badge-success';
     document.getElementById('refreshBtn').style.display = 'inline-flex';
   }
@@ -714,7 +715,7 @@ function loadFromApp(payload) {
 function refreshFromApp() {
   const raw = localStorage.getItem('lpa_fit_data');
   if (raw) {
-    try { loadFromApp(JSON.parse(raw)); } catch(e) { alert('Veri yenilenemedi.'); }
+    try { loadFromApp(JSON.parse(raw)); } catch(e) { alert('Could not refresh data.'); }
   }
 }
 
@@ -775,17 +776,17 @@ function findOptimal() {
     const reasons = [];
     const warnings = [];
 
-    if (m.bic === minBIC) { score += 3; reasons.push('En dusuk BIC'); }
-    if (m.aic === minAIC) { score += 1; reasons.push('En dusuk AIC'); }
-    if (m.abic === minABIC) { score += 2; reasons.push('En dusuk aBIC'); }
+    if (m.bic === minBIC) { score += 3; reasons.push('Lowest BIC'); }
+    if (m.aic === minAIC) { score += 1; reasons.push('Lowest AIC'); }
+    if (m.abic === minABIC) { score += 2; reasons.push('Lowest aBIC'); }
 
-    if (m.entropy >= 0.80) { score += 2; reasons.push('Yuksek entropy (>= .80)'); }
-    else if (m.entropy >= 0.60) { score += 1; reasons.push('Kabul edilebilir entropy'); }
-    else if (i > 0) { warnings.push('Dusuk entropy (< .60)'); }
+    if (m.entropy >= 0.80) { score += 2; reasons.push('High entropy (>= .80)'); }
+    else if (m.entropy >= 0.60) { score += 1; reasons.push('Acceptable entropy'); }
+    else if (i > 0) { warnings.push('Low entropy (< .60)'); }
 
-    if (i > 0 && m.blrt_p < 0.05) { score += 2; reasons.push('Anlamli BLRT'); }
+    if (i > 0 && m.blrt_p < 0.05) { score += 2; reasons.push('Significant BLRT'); }
     if (i < models.length - 1 && models[i+1].blrt_p >= 0.05) {
-      score += 2; reasons.push('Sonraki modelin BLRT\'si anlamsiz');
+      score += 2; reasons.push('Next model\'s BLRT is non-significant');
     }
 
     // Elbow
@@ -793,14 +794,14 @@ function findOptimal() {
       const dropBefore = models[i-1].bic - m.bic;
       const dropAfter = m.bic - models[i+1].bic;
       if (dropBefore > 0 && dropAfter >= 0 && dropBefore > dropAfter * 2) {
-        score += 2; reasons.push('BIC elbow noktasi');
+        score += 2; reasons.push('BIC elbow point');
       }
     }
 
-    // 1-profil model penalize
+    // Penalize the 1-profile model
     if (i === 0) { score -= 5; }
 
-    if (n / (i+1) < 50 && i > 0) { score -= 2; warnings.push('Dusuk N/k orani (' + Math.round(n/(i+1)) + ')'); }
+    if (n / (i+1) < 50 && i > 0) { score -= 2; warnings.push('Low N/k ratio (' + Math.round(n/(i+1)) + ')'); }
 
     return { k: m.k || (i+1), idx: i, score, reasons, warnings, model: m };
   });
@@ -827,6 +828,21 @@ function findGroupOptimal(groupModels) {
   return groupModels[bestIdx];
 }
 
+// ===== NUMBER FORMATTING =====
+// Locale-independent formatting so fit indices read correctly in an English
+// APA report: comma thousands separators, 2 decimals (e.g. 24775.3 -> "24,775.30").
+function fmt(x) {
+  const num = Number(x);
+  if (!isFinite(num)) return '-';
+  return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+// Integer formatting with comma thousands (for BIC/AIC deltas).
+function fmtInt(x) {
+  const num = Number(x);
+  if (!isFinite(num)) return '-';
+  return Math.round(num).toLocaleString('en-US');
+}
+
 // ===== RENDER =====
 function updateAll() {
   renderFitTable();
@@ -847,18 +863,18 @@ function renderFitTable() {
   const minABIC = Math.min(...abics);
 
   let html = `<thead><tr>
-    <th>Model</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>aBIC</th><th>Entropy</th><th>Durum</th>
+    <th>Model</th><th>LL</th><th>#fp</th><th>AIC</th><th>BIC</th><th>aBIC</th><th>Entropy</th><th>Status</th>
   </tr></thead><tbody>`;
 
   models.forEach((m, i) => {
     const isOpt = i === optimal.idx;
     html += `<tr class="${isOpt ? 'optimal-row' : ''}">`;
-    html += `<td class="model-col">${m.k || (i+1)}-Profil</td>`;
-    html += `<td>${m.ll ? m.ll.toLocaleString() : '-'}</td>`;
+    html += `<td class="model-col">${m.k || (i+1)}-Profile</td>`;
+    html += `<td>${m.ll ? fmt(m.ll) : '-'}</td>`;
     html += `<td>${m.fp || '-'}</td>`;
-    html += `<td>${m.aic === minAIC ? '<span class="best-pill">&#9733; '+m.aic.toLocaleString()+'</span>' : m.aic.toLocaleString()}</td>`;
-    html += `<td>${m.bic === minBIC ? '<span class="best-pill">&#9733; '+m.bic.toLocaleString()+'</span>' : m.bic.toLocaleString()}</td>`;
-    html += `<td>${m.abic === minABIC ? '<span class="best-pill">&#9733; '+m.abic.toLocaleString()+'</span>' : m.abic.toLocaleString()}</td>`;
+    html += `<td>${m.aic === minAIC ? '<span class="best-pill">&#9733; '+fmt(m.aic)+'</span>' : fmt(m.aic)}</td>`;
+    html += `<td>${m.bic === minBIC ? '<span class="best-pill">&#9733; '+fmt(m.bic)+'</span>' : fmt(m.bic)}</td>`;
+    html += `<td>${m.abic === minABIC ? '<span class="best-pill">&#9733; '+fmt(m.abic)+'</span>' : fmt(m.abic)}</td>`;
 
     const eClass = m.entropy >= 0.80 ? 'best-pill' : m.entropy >= 0.60 ? 'ok-pill' : 'warn-pill';
     html += `<td>${i === 0 && m.entropy === 0 ? '<span style="color:var(--text-3)">-</span>' : '<span class="'+eClass+'">'+m.entropy.toFixed(3)+'</span>'}</td>`;
@@ -868,7 +884,7 @@ function renderFitTable() {
 
   html += '</tbody>';
   document.getElementById('fitTable').innerHTML = html;
-  document.getElementById('optimalBadge').textContent = `${optimal.k}-Profil Optimal`;
+  document.getElementById('optimalBadge').textContent = `${optimal.k}-Profile Optimal`;
   document.getElementById('optimalBadge').className = 'card-badge card-badge-green';
 }
 
@@ -883,7 +899,7 @@ function renderEntropy() {
     const color = m.entropy >= 0.80 ? 'var(--success)' : m.entropy >= 0.60 ? 'var(--warning)' : 'var(--danger)';
 
     html += `<div class="entropy-row">
-      <span class="entropy-label ${isOpt ? 'is-optimal' : ''}">${m.k || (i+1)}-Profil ${isOpt ? '★' : ''}</span>
+      <span class="entropy-label ${isOpt ? 'is-optimal' : ''}">${m.k || (i+1)}-Profile ${isOpt ? '★' : ''}</span>
       <div class="entropy-bar-track">
         <div class="entropy-bar-fill" style="width:${m.entropy*100}%;background:${color};"></div>
         <div class="entropy-bar-marks">
@@ -896,7 +912,7 @@ function renderEntropy() {
   });
 
   const optE = models[optimal.idx]?.entropy || 0;
-  const quality = optE >= 0.80 ? 'Yuksek' : optE >= 0.60 ? 'Kabul Edilebilir' : 'Dusuk';
+  const quality = optE >= 0.80 ? 'High' : optE >= 0.60 ? 'Acceptable' : 'Low';
   const badgeClass = optE >= 0.80 ? 'card-badge-green' : optE >= 0.60 ? 'card-badge-yellow' : 'card-badge-red';
 
   document.getElementById('entropyBadge').textContent = quality;
@@ -906,14 +922,14 @@ function renderEntropy() {
 
 function renderBLRT() {
   const models = state.models;
-  let html = '<table class="fit-table"><thead><tr><th>Gecis</th><th>BLRT p</th><th>aLMR p</th><th>Durum</th></tr></thead><tbody>';
+  let html = '<table class="fit-table"><thead><tr><th>Transition</th><th>BLRT p</th><th>aLMR p</th><th>Status</th></tr></thead><tbody>';
 
   models.forEach((m, i) => {
     if (i === 0) return;
     const blrtOk = m.blrt_p < 0.05;
     const almrOk = m.almr_p < 0.05;
     const status = blrtOk ? 'best-pill' : 'warn-pill';
-    const statusText = blrtOk ? '✓ Anlamli' : '✗ Anlamsiz';
+    const statusText = blrtOk ? '✓ Significant' : '✗ Non-significant';
 
     html += `<tr>
       <td class="model-col">${m.k-1 || i} → ${m.k || (i+1)}</td>
@@ -932,7 +948,7 @@ function renderRecommendation() {
   const m = optimal.model;
   if (!m) return;
 
-  let html = `<div class="rec-optimal">★ Onerilen: ${optimal.k}-Profil Cozum</div>`;
+  let html = `<div class="rec-optimal">★ Recommended: ${optimal.k}-Profile Solution</div>`;
   html += '<ul class="rec-reasons">';
   optimal.reasons.forEach(r => { html += `<li>${r}</li>`; });
   optimal.warnings.forEach(w => { html += `<li class="warn">${w}</li>`; });
@@ -946,7 +962,7 @@ function renderRecommendation() {
       if (drop > maxDrop) { maxDrop = drop; maxDropIdx = i; }
     }
     if (maxDrop > 0) {
-      html += `<li>En buyuk BIC dususu: ${models[maxDropIdx-1].k||maxDropIdx}→${models[maxDropIdx].k||(maxDropIdx+1)} profil (&#916; = ${Math.round(maxDrop)})</li>`;
+      html += `<li>Largest BIC drop: ${models[maxDropIdx-1].k||maxDropIdx}→${models[maxDropIdx].k||(maxDropIdx+1)} profiles (&#916; = ${fmtInt(maxDrop)})</li>`;
     }
   }
 
@@ -970,9 +986,9 @@ function buildCompareSection() {
 
     html += `<div class="compare-card ${gn === state.activeGroup ? 'highlight' : ''}" onclick="switchGroup('${gn}')" style="cursor:pointer;">
       <div class="compare-group">${gn}</div>
-      <div class="compare-k">${best.k}<span>-Profil</span></div>
+      <div class="compare-k">${best.k}<span>-Profile</span></div>
       <div class="compare-stats">
-        BIC: ${best.bic.toLocaleString()}<br>
+        BIC: ${fmt(best.bic)}<br>
         Entropy: ${best.entropy.toFixed(3)}<br>
         BLRT p: ${best.blrt_p < 0.001 ? '< .001' : best.blrt_p.toFixed(3)}
       </div>
@@ -995,43 +1011,64 @@ function updatePrompt() {
   const groupLabel = state.activeGroup || '';
 
   let p = '';
-  p += `Asagidaki bilgileri kullanarak APA 7 formatinda Latent Profil Analizi (LPA) sonuclarini raporla:\n\n`;
+  p += `Using the information below, report the Latent Profile Analysis (LPA) results in APA 7th edition format:\n\n`;
 
   if (hasGroups) {
-    p += `Bu sonuclar cok-gruplu (multi-group) LPA'nin class enumeration asamasina aittir.\n`;
-    p += `Aktif grup: ${groupLabel}\n\n`;
+    p += `These results belong to the class-enumeration stage of a multi-group LPA.\n`;
+    p += `Active group: ${groupLabel}\n\n`;
   }
 
-  p += `Orneklem: N = ${n}, ${nVars} surekli gosterge degiskeni ile ${models.length} alternatif model (1-profil ile ${models.length}-profil) karsilastirilmistir.\n\n`;
+  p += `Sample: N = ${n}; ${models.length} alternative models (from the 1-profile to the ${models.length}-profile solution) were compared using ${nVars} continuous indicator variables.\n\n`;
 
-  p += `Model Karsilastirma Tablosu:\n`;
+  p += `Model Comparison Table:\n`;
   p += `| Model | AIC | BIC | aBIC | Entropy | BLRT p | aLMR p |\n`;
   p += `|-------|-----|-----|------|---------|--------|--------|\n`;
 
   models.forEach((mod, i) => {
-    p += `| ${mod.k || (i+1)}-profil | ${mod.aic.toLocaleString()} | ${mod.bic.toLocaleString()} | ${mod.abic.toLocaleString()} | ${i === 0 && mod.entropy === 0 ? '-' : mod.entropy.toFixed(3)} | ${i === 0 ? '-' : mod.blrt_p < 0.001 ? '< .001' : mod.blrt_p.toFixed(3)} | ${i === 0 ? '-' : mod.almr_p >= 1 ? '-' : mod.almr_p < 0.001 ? '< .001' : mod.almr_p.toFixed(3)} |\n`;
+    p += `| ${mod.k || (i+1)}-profile | ${fmt(mod.aic)} | ${fmt(mod.bic)} | ${fmt(mod.abic)} | ${i === 0 && mod.entropy === 0 ? '-' : mod.entropy.toFixed(3)} | ${i === 0 ? '-' : mod.blrt_p < 0.001 ? '< .001' : mod.blrt_p.toFixed(3)} | ${i === 0 ? '-' : mod.almr_p >= 1 ? '-' : mod.almr_p < 0.001 ? '< .001' : mod.almr_p.toFixed(3)} |\n`;
   });
 
-  p += `\nOptimal model: ${optimal.k}-profil cozum\n`;
-  p += `Gerekceler: ${optimal.reasons.join('; ')}\n`;
+  p += `\nOptimal model (statistical): ${optimal.k}-profile solution\n`;
+  p += `Statistical justification: ${optimal.reasons.join('; ')}\n`;
+  if (optimal.warnings && optimal.warnings.length) {
+    p += `Cautions: ${optimal.warnings.join('; ')}\n`;
+  }
+
+  // --- Comparison result (between the candidate models) ---
+  p += `\nComparison result:\n`;
+  const oi = optimal.idx;
+  const optM = models[oi];
+  if (oi > 0) {
+    const prev = models[oi - 1];
+    p += `- Compared with the ${(prev.k || oi)}-profile model, the ${optimal.k}-profile model lowers the BIC by ${fmtInt(prev.bic - optM.bic)} (${fmt(prev.bic)} -> ${fmt(optM.bic)}) and the AIC by ${fmtInt(prev.aic - optM.aic)}.\n`;
+  }
+  if (oi < models.length - 1) {
+    const next = models[oi + 1];
+    const bicChange = Math.round(next.bic - optM.bic);
+    p += `- Adding one more profile (the ${(next.k || (oi + 2))}-profile model) changes the BIC by ${(bicChange >= 0 ? '+' : '') + fmtInt(bicChange)} and yields a ${next.blrt_p >= 0.05 ? 'non-significant' : 'significant'} BLRT (p = ${next.blrt_p < 0.001 ? '< .001' : next.blrt_p.toFixed(3)}), so the extra profile is ${next.blrt_p >= 0.05 ? 'not statistically justified' : 'statistically supported but must still be weighed against parsimony and interpretability'}.\n`;
+  }
+  p += `- Overall, across the information criteria (AIC/BIC/aBIC), the entropy, and the likelihood-ratio tests, the ${optimal.k}-profile solution offers the best balance of fit and parsimony among the compared models.\n`;
 
   // Proportions
   if (m.proportions && m.proportions.length > 0) {
-    p += `Sinif oranlari: ${m.proportions.map((pr, i) => `Profil ${i+1} = %${typeof pr === 'number' && pr < 1 ? Math.round(pr*100) : pr}`).join(', ')}\n`;
+    p += `\nClass proportions: ${m.proportions.map((pr, i) => `Profile ${i+1} = ${typeof pr === 'number' && pr < 1 ? Math.round(pr*100) + '%' : pr}`).join(', ')}\n`;
   }
 
-  p += `\nLutfen bu bilgileri APA 7 formatinda, akademik bir dilde, Turkce olarak yaz. Fit indekslerinin yorumlarini, entropy degerlendirmesini, BLRT sonuclarini dahil et. Optimal profil sayisi kararinin gerekcesini acikla.`;
+  p += `\nPlease write this up in APA 7th edition format, in an academic register, in English. Include the interpretation of the fit indices, the entropy assessment, and the BLRT results, and explain the rationale for the selected number of profiles.\n`;
+
+  // --- Theoretical / conceptual interpretation requirement ---
+  p += `\nIMPORTANT - theoretical/conceptual interpretation: The number of profiles must NOT be decided on the statistical fit indices alone. These indices are only a starting point; the final solution must also be evaluated and justified on theoretical/conceptual grounds - that is, the substantive meaning, interpretability and distinctiveness of the profiles, their consistency with theory and prior literature, parsimony, and practical usefulness. Please state explicitly that the selected ${optimal.k}-profile solution still requires this theoretical/conceptual interpretation and justification beyond the statistical evidence, and frame the conclusion accordingly.`;
 
   // Multi-group comparison
   if (hasGroups && state.importedData) {
-    p += `\n\n--- TUM GRUPLAR KARSILASTIRMASI ---\n`;
+    p += `\n\n--- COMPARISON ACROSS ALL GROUPS ---\n`;
     state.groupNames.forEach(gn => {
       const gModels = state.importedData.groups[gn];
       const best = findGroupOptimal(gModels);
       if (!best) return;
-      p += `${gn}: Optimal = ${best.k}-profil (BIC=${best.bic.toLocaleString()}, Entropy=${best.entropy.toFixed(3)}, BLRT p=${best.blrt_p < 0.001 ? '< .001' : best.blrt_p.toFixed(3)})\n`;
+      p += `${gn}: Optimal = ${best.k}-profile (BIC = ${fmt(best.bic)}, Entropy = ${best.entropy.toFixed(3)}, BLRT p = ${best.blrt_p < 0.001 ? '< .001' : best.blrt_p.toFixed(3)})\n`;
     });
-    p += `\nHer iki grubun optimal profil sayilarini karsilastir. Eger ayniysa bunu multi-group LPA'nin bir sonraki adimi (configural similarity) icin guclu bir temel olarak yorumla. Farkliysa olasi nedenleri ve implikasyonlari tartis.`;
+    p += `\nComparison result across groups: Compare the optimal number of profiles across the groups. If they are the same, interpret this as a strong basis for the next step of the multi-group LPA (configural similarity). If they differ, discuss the possible reasons and implications. This cross-group comparison, too, must be interpreted theoretically/conceptually and not solely on the basis of the fit indices.`;
   }
 
   document.getElementById('promptOutput').textContent = p;
@@ -1042,7 +1079,7 @@ function copyPrompt() {
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.getElementById('copyBtn');
     const orig = btn.innerHTML;
-    btn.innerHTML = '<svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg> Kopyalandi!';
+    btn.innerHTML = '<svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg> Copied!';
     btn.style.background = 'var(--success)';
     setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 1500);
   });
